@@ -1,0 +1,100 @@
+:root{
+  --nav-bg: rgba(20,24,38,.55);
+  --nav-bd: rgba(255,255,255,.14);
+  --ink:#edf1ff;
+  --gold1:#fff2b3; --gold2:#ffd54d; --gold3:#ffb300;
+}
+body.bg-dark-gradient{
+  background:
+    radial-gradient(1200px 800px at 10% -10%, #1b2140, transparent 60%),
+    radial-gradient(1000px 700px at 100% 0, #121725, transparent 55%),
+    linear-gradient(180deg,#0c0f1a, #0b0f19);
+}
+
+/* ===== NAVBAR / BRAND ===== */
+.glass-nav{
+  background: var(--nav-bg);
+  border-bottom:1px solid var(--nav-bd);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 10px 26px rgba(0,0,0,.35);
+}
+.navbar .nav-link, .navbar .navbar-brand{ color: var(--ink); }
+
+.brand-wrap{ display:flex; align-items:center; gap:.5rem; }
+.brand-shell{
+  display:flex; align-items:center; gap:.5rem;
+  padding:.25rem .6rem; border-radius:.9rem;
+  background: rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.05), 0 6px 16px rgba(0,0,0,.25);
+  backdrop-filter: blur(10px);
+}
+.brand-badge{
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:.05rem .6rem .15rem; border-radius:12px; overflow:hidden;
+  background: linear-gradient(90deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+  border:1px solid rgba(255,255,255,.12);
+}
+.brand-svg{ height:24px; width:auto; display:block; }
+.brand-svg text{
+  font-family:'Cairo Play','Tajawal',system-ui;
+  font-weight:900; dominant-baseline:middle; text-anchor:middle;
+  fill: url(#goldGrad);
+  stroke: rgba(0,0,0,.35); stroke-width:.75;
+  filter: drop-shadow(0 1px 6px rgba(255,205,75,.22));
+}
+.cam{
+  width:32px;height:32px;border-radius:10px; display:grid;place-items:center;
+  background: rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), 0 6px 16px rgba(0,0,0,.25);
+}
+.cam svg{ width:19px;height:19px; }
+
+/* زر 3 شخطات */
+.btn-glass-toggle{
+  border:1px solid rgba(255,255,255,.16);
+  background: rgba(255,255,255,.07);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border-radius:.9rem; padding:.35rem .6rem; color:#fff;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), 0 6px 16px rgba(0,0,0,.25);
+  transition: transform .12s ease;
+}
+/* نبضة وهج مؤقتة */
+@keyframes glowPulse {
+  0%  { box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), 0 6px 16px rgba(0,0,0,.25); }
+  30% { box-shadow: 0 0 0 4px rgba(255,242,179,.55), 0 0 20px rgba(255,213,77,.85), 0 0 40px rgba(255,179,0,.65); }
+  100%{ box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), 0 6px 16px rgba(0,0,0,.25); }
+}
+.glow-pulse{ animation: glowPulse .85s ease-out both; }
+
+/* أزرار زجاجية داخل القائمة للضيوف */
+.nav-glass-btn{
+  color:#fff !important; background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.16); border-radius:.9rem;
+  padding:.5rem .85rem; margin-top:.25rem; backdrop-filter:blur(10px);
+  display:inline-flex; align-items:center; gap:.5rem;
+}
+.nav-glass-btn:hover{ background:rgba(255,255,255,.1); }
+
+/* فاصل */
+.glass-divider{
+  margin:.5rem 0; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent); border:none;
+}
+
+/* إضافات بسيطة عامة */
+.text-contrast{color:rgba(255,255,255,.97)}
+
+/* ===== إصلاح أزرار الضيوف داخل المنيو الزجاجي ===== */
+.nav-glass-btn{
+  text-decoration: none !important;   /* يشيل الخط الأبيض/التسطير */
+  outline: none !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), 0 6px 16px rgba(0,0,0,.25);
+}
+.nav-glass-btn:focus,
+.nav-glass-btn:active{
+  text-decoration: none !important;   /* تأكيد */
+  outline: none !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), 0 6px 16px rgba(0,0,0,.25);
+}

@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}إنشاء حساب{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+
+      <div class="card card-glass glass-strong shadow-lg border-0">
+        <div class="card-body p-4 p-md-5 text-contrast">
+
+          <div class="d-flex align-items-center justify-content-between mb-4">
+            <h2 class="m-0 fw-bold text-glow-weak">إنشاء حساب</h2>
+            <span class="badge bg-warning text-dark rounded-pill">
+              <i class="bi bi-person-plus me-1"></i> جديد
+            </span>
+          </div>
+
+          <!-- رسائل فلاش -->
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              <div class="mb-3">
+                {% for category, msg in messages %}
+                  <div class="alert alert-{{ 'warning' if category=='message' else category }} glass-strong border-0 text-contrast" role="alert">
+                    {{ msg }}
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+          {% endwith %}
+
+          <form method="post" action="{{ url_for('auth_register') }}" class="needs-validation" novalidate>
+            <div class="mb-3">
+              <label class="form-label text-light-80" for="username">اسم المستخدم</label>
+              <input type="text" class="form-control form-control-lg glass-input text-contrast" id="username" name="username" required placeholder="اكتب اسم المستخدم">
+              <div class="invalid-feedback">يرجى إدخال اسم مستخدم.</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label text-light-80" for="email">البريد الإلكتروني (اختياري)</label>
+              <input type="email" class="form-control form-control-lg glass-input text-contrast" id="email" name="email" placeholder="name@example.com">
+              <div class="invalid-feedback">صيغة البريد غير صحيحة.</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label text-light-80" for="password">كلمة المرور</label>
+              <div class="input-group input-group-lg">
+                <input type="password" class="form-control glass-input text-contrast" id="password" name="password" minlength="6" required placeholder="••••••••">
+                <button type="button" class="btn btn-glass btn-contrast" id="togglePass1" aria-label="إظهار/إخفاء">
+                  <i class="bi bi-eye"></i>
+                </button>
+                <div class="invalid-feedback">أدخل كلمة مرور لا تقل عن 6 أحرف.</div>
+              </div>
+              <div class="form-text text-light-70 mt-2">اختر كلمة مرور قوية (6 أحرف على الأقل).</div>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label text-light-80" for="confirm">تأكيد كلمة المرور</label>
+              <div class="input-group input-group-lg">
+                <input type="password" class="form-control glass-input text-contrast" id="confirm" name="confirm" minlength="6" required placeholder="أعد كتابة كلمة المرور">
+                <button type="button" class="btn btn-glass btn-contrast" id="togglePass2" aria-label="إظهار/إخفاء">
+                  <i class="bi bi-eye"></i>
+                </button>
+                <div class="invalid-feedback">كلمتا المرور غير متطابقتين.</div>
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-between">
+              <a class="btn btn-outline-light px-4 rounded-3" href="{{ url_for('auth_login') }}">
+                لدي حساب
+              </a>
+              <button class="btn btn-warning text-dark px-4 rounded-3" type="submit">
+                إنشاء حساب
+              </button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+
+      <p class="text-center mt-4 text-light-70 small">Bootstrap 5 • {{ now.year }} • أهلاً بك</p>
+
+    </div>
+  </div>
+</div>
+
+<!-- JS التحقق وإظهار/إخفاء كلمة المرور -->
+<script>
+  (function () {
+    'use strict';
+
+    // Bootstrap validation
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.prototype.slice.call(forms).forEach(function(form){
+      form.addEventListener('submit', function (event) {
+        const pass = document.getElementById('password');
+        const conf = document.getElementById('confirm');
+
+        // تحقق تطابق كلمة المرور
+        if (pass.value !== conf.value) {
+          conf.setCustomValidity('mismatch');
+        } else {
+          conf.setCustomValidity('');
+        }
+
+        if (!form.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+
+    // إظهار/إخفاء
+    function hookToggle(btnId, inputId) {
+      const btn = document.getElementById(btnId);
+      const inp = document.getElementById(inputId);
+      if (!btn || !inp) return;
+      btn.addEventListener('click', function(){
+        const isText = inp.getAttribute('type') === 'text';
+        inp.setAttribute('type', isText ? 'password' : 'text');
+        this.querySelector('i').className = isText ? 'bi bi-eye' : 'bi bi-eye-slash';
+      });
+    }
+    hookToggle('togglePass1', 'password');
+    hookToggle('togglePass2', 'confirm');
+
+    // تحديث صلاحية التطابق مباشرة أثناء الكتابة
+    const pass = document.getElementById('password');
+    const conf = document.getElementById('confirm');
+    if (pass && conf) {
+      const sync = () => {
+        if (conf.value && pass.value !== conf.value) {
+          conf.setCustomValidity('mismatch');
+        } else {
+          conf.setCustomValidity('');
+        }
+      };
+      pass.addEventListener('input', sync);
+      conf.addEventListener('input', sync);
+    }
+  })();
+</script>
+
+{% endblock %}

@@ -1,0 +1,164 @@
+{# templates/partials/comments.html #}
+{# إذا كان اسم المتغير عندك p فقط، مرّره قبل الإدراج:
+   {% set post = p %}
+#}
+
+<div class="glass-comments p-3 rounded-4">
+  <!-- قائمة التعليقات -->
+  <div id="clist-{{ post.id }}" data-comments-list class="vstack gap-2 mb-2">
+    {% for c in post.comments|sort(attribute='created_at', reverse=true) %}
+      <div class="d-flex align-items-start gap-2 comment-item p-2 rounded-3">
+        <a href="{{ url_for('profile', username=c.user.username) }}" class="text-decoration-none">
+          <img src="{{ c.user.avatar_url }}" class="avatar-xs" alt="">
+        </a>
+        <div class="flex-grow-1">
+          <div class="d-flex align-items-center justify-content-between">
+            <a href="{{ url_for('profile', username=c.user.username) }}"
+               class="fw-semibold small text-warning text-decoration-none">
+              {{ c.user.display_name or c.user.username }}
+            </a>
+            <small class="time-badge">{{ format_time(c.created_at) }}</small>
+          </div>
+          <div class="d-flex align-items-center justify-content-between mt-1">
+            <div class="comment-text me-2">{{ c.content|e }}</div>
+            <button class="c-like heart-btn" type="button" data-cid="{{ c.id }}">
+              <i class="bi bi-heart{% if c.reacted(current_user,'❤️') %}-fill{% endif %}"></i>
+              <span class="small ms-1" data-like-count="{{ c.reaction_count('❤️') }}">{{ c.reaction_count('❤️') }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="text-secondary small">لا توجد تعليقات بعد.</div>
+    {% endfor %}
+  </div>
+
+  {% if current_user.is_authenticated and post.allow_comments %}
+  <!-- نموذج الإضافة (بدون submit كلاسيكي) -->
+  <div id="cform-{{ post.id }}" class="mt-2">
+    <div class="d-flex align-items-stretch gap-2 position-relative">
+      <input
+        id="cinput-{{ post.id }}"
+        class="form-control form-control-lg input-glass flex-grow-1"
+        maxlength="600"
+        placeholder="أضف تعليقاً لطيفاً…"
+        autocomplete="off">
+
+      <button id="csend-{{ post.id }}" class="btn btn-warning text-dark send-btn px-3" type="button" aria-label="إرسال">
+        <i class="bi bi-send"></i>
+      </button>
+
+      <!-- فقاعة التحذير الزجاجية -->
+      <div class="glass-tip" id="ctip-{{ post.id }}">يرجى ملء هذا الحقل.</div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+{% if current_user.is_authenticated and post.allow_comments %}
+<script>
+(function(){
+  const pid   = {{ post.id }};
+  const input = document.getElementById('cinput-'+pid);
+  const btn   = document.getElementById('csend-'+pid);
+  const tip   = document.getElementById('ctip-'+pid);
+  const list  = document.getElementById('clist-'+pid);
+
+  if(!input || !btn) return;
+
+  input.addEventListener('input', () => {
+    tip?.classList.remove('show');
+    input.classList.remove('is-invalid');
+  });
+
+  input.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      btn.click();
+    }
+  });
+
+  btn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const txt = (input.value || '').trim();
+    if(!txt){
+      input.classList.add('is-invalid');
+      if(tip){
+        tip.textContent = 'يرجى ملء هذا الحقل.';
+        tip.classList.add('show');
+        setTimeout(()=> tip.classList.remove('show'), 1500);
+      }
+      input.focus();
+      return;
+    }
+
+    btn.disabled = true;
+    try{
+      const resp = await fetch(`/post/${pid}/comment`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},
+        body: new URLSearchParams({ content: txt })
+      });
+      const data = await resp.json();
+      if(!data || !data.ok) throw new Error(data?.msg || 'تعذر إرسال التعليق');
+
+      const c = data.comment;
+      const el = document.createElement('div');
+      el.className = 'd-flex align-items-start gap-2 comment-item p-2 rounded-3';
+      el.innerHTML = `
+        <a href="/u/${(c.user.username||'')}" class="text-decoration-none">
+          <img src="${c.user.avatar}" class="avatar-xs" alt="">
+        </a>
+        <div class="flex-grow-1">
+          <div class="d-flex align-items-center justify-content-between">
+            <a href="/u/${(c.user.username||'')}" class="fw-semibold small text-warning text-decoration-none">
+              ${(c.user.display_name || c.user.username)}
+            </a>
+            <small class="time-badge">الآن</small>
+          </div>
+          <div class="d-flex align-items-center justify-content-between mt-1">
+            <div class="comment-text me-2"></div>
+            <button class="c-like heart-btn" type="button" data-cid="${c.id}">
+              <i class="bi bi-heart"></i> <span class="small ms-1" data-like-count>0</span>
+            </button>
+          </div>
+        </div>`;
+      el.querySelector('.comment-text').textContent = c.content;
+      list?.prepend(el);
+
+      input.value = '';
+      input.classList.remove('is-invalid');
+      tip?.classList.remove('show');
+    }catch(err){
+      if(tip){
+        tip.textContent = 'حدث خطأ، حاول ثانيةً';
+        tip.classList.add('show');
+        setTimeout(()=>{ tip.classList.remove('show'); tip.textContent='يرجى ملء هذا الحقل.'; }, 1800);
+      }
+      console.error(err);
+    }finally{
+      btn.disabled = false;
+    }
+  });
+
+  document.addEventListener('click', async (ev) => {
+    const b = ev.target.closest('.c-like');
+    if(!b) return;
+    ev.preventDefault();
+    const cid = b.getAttribute('data-cid');
+    const icon = b.querySelector('i');
+    const cnt  = b.querySelector('[data-like-count]');
+    try{
+      const r = await fetch(`/comment/${cid}/like`, {method:'POST'});
+      const j = await r.json();
+      if(!j.ok) throw 0;
+      cnt.textContent = j.count;
+      if(j.on){ icon.classList.replace('bi-heart','bi-heart-fill'); icon.classList.add('text-danger'); }
+      else    { icon.classList.replace('bi-heart-fill','bi-heart'); icon.classList.remove('text-danger'); }
+    }catch{}
+  });
+})();
+</script>
+{% endif %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+{% from "partials/photo_macros.html" import photo_card with context %}
+
+<!-- Hero -->
+<section class="glass p-4 p-md-5 rounded-4 mb-4 position-relative overflow-hidden">
+  <div class="row align-items-center g-3">
+    <div class="col-lg-8">
+      <h1 class="display-5 fw-bolder lh-sm">
+        <span class="text-light">شارك</span>
+        <span class="text-warning">صورك</span>
+        <span class="text-light">مع العالم</span> 🌍
+      </h1>
+      <p class="lead text-secondary mt-2">
+        انضم إلى <span class="fw-bold text-warning">لاند فوتو</span> وابدأ بنشر صورك،
+        وخلي الناس يتفاعلون وياها بإعجاب ❤️ أو تعليق 💬 أو مشاركة ↗︎.
+      </p>
+
+      <form class="row g-2 mt-3" method="get" action="{{ url_for('search') }}">
+        <div class="col-12 col-md">
+          <input name="q" value="{{ search or '' }}" class="form-control form-control-lg input-glass"
+                 placeholder="ابحث عن صورة أو اسم مستخدم...">
+        </div>
+        <div class="col-6 col-md-auto">
+          <button class="btn btn-warning btn-lg w-100 text-dark">
+            <i class="bi bi-search"></i> بحث
+          </button>
+        </div>
+        {% if current_user.is_authenticated %}
+        <div class="col-6 col-md-auto">
+          <a class="btn btn-glass btn-lg w-100" href="{{ url_for('upload') }}">
+            <i class="bi bi-cloud-upload"></i> ارفع صورة
+          </a>
+        </div>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+</section>
+
+<h5 class="text-warning mb-3"><i class="bi bi-image me-1"></i> أحدث الصور</h5>
+
+{% if photos and photos|length %}
+  <div class="feed-grid">
+    {% for p in photos %}
+      {{ photo_card(p) }}
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="card card-glass p-5 text-center text-secondary">
+    لا توجد منشورات بعد.
+  </div>
+{% endif %}
+{% endblock %}

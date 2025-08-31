@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3 class="mb-4 text-warning"><i class="bi bi-chat-dots"></i> الرسائل</h3>
+
+<!-- بدء محادثة جديدة -->
+<div class="glass rounded-4 p-3 p-md-4 mb-4">
+  <div class="d-flex align-items-center mb-3">
+    <i class="bi bi-people text-warning fs-4 me-2"></i>
+    <div class="fw-bold">ابدأ محادثة جديدة</div>
+  </div>
+  {% if users and users|length %}
+    <div class="row g-2">
+      {% for u in users %}
+      <div class="col-6 col-md-4 col-lg-3">
+        <a class="btn btn-glass w-100 text-start d-flex align-items-center gap-2 rounded-3 p-2"
+           href="{{ url_for('chat_thread', username=u.username) }}">
+          <img src="{{ u.avatar_url }}" class="rounded-circle border" style="width:36px;height:36px;object-fit:cover;">
+          <div class="text-truncate">
+            <div class="fw-semibold text-warning">@{{ u.username }}</div>
+            <small class="text-secondary">{{ u.display_name or u.username }}</small>
+          </div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="text-secondary">لا يوجد متابعون لبدء محادثة معهم.</div>
+  {% endif %}
+</div>
+
+<!-- قائمة المحادثات -->
+<div class="vstack gap-3">
+  {% for item in threads_info %}
+    {% set t = item.thread %}
+    {% set other = item.other %}
+    <a class="glass p-3 rounded-4 text-decoration-none d-flex align-items-center justify-content-between"
+       href="{{ url_for('chat_thread', username=other.username) }}">
+      <div class="d-flex align-items-center gap-3">
+        <div class="position-relative">
+          <img src="{{ other.avatar_url }}" class="rounded-circle border"
+               style="width:48px;height:48px;object-fit:cover;">
+          {% if is_online(other) %}
+            <span class="position-absolute bottom-0 end-0 translate-middle p-1 bg-success border border-2 border-dark rounded-circle"></span>
+          {% endif %}
+        </div>
+        <div>
+          <div class="fw-bold text-warning">@{{ other.username }}</div>
+          <small class="text-secondary">آخر نشاط: {{ timeago_ar(other.last_seen) if other.last_seen else '—' }}</small>
+        </div>
+      </div>
+      <div class="text-secondary small"><i class="bi bi-clock"></i> {{ timeago_ar(t.updated_at) }}</div>
+    </a>
+  {% else %}
+    <div class="glass p-4 rounded-4 text-secondary text-center">لا توجد محادثات بعد.</div>
+  {% endfor %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,90 @@
+:root{
+  --bg:#0e0f13; --glass:rgba(255,255,255,.06);
+  --glass-strong:rgba(255,255,255,.12);
+  --ring:#d3a93b;
+}
+body{ background: radial-gradient(1200px 600px at 50% -10%, rgba(255,255,0,.05), transparent), var(--bg); }
+
+.glass{ background:var(--glass)!important; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius:1rem; }
+.glass-strong{ background:var(--glass-strong)!important; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.glass-hero{ background:linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); }
+.card-glass{ @apply glass; } /* harmless if not using Tailwind; ignored by browser */
+.card-glass{ background:var(--glass); border:1px solid rgba(255,255,255,.08); border-radius:1rem; }
+.blur-10{ backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.glow{ box-shadow:0 10px 30px rgba(255,193,7,.18); }
+
+.btn-glass{ background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); color:#fff; }
+.btn-glass:hover{ background:rgba(255,255,255,.12); color:#fff; }
+
+.glass-input{ background:rgba(255,255,255,.05)!important; border:1px solid rgba(255,255,255,.15)!important; color:#fff!important; }
+.glass-input:focus{ background:rgba(255,255,255,.08)!important; color:#fff; box-shadow: 0 0 0 .25rem rgba(255,193,7,.15); }
+
+.avatar-xs{ width:34px; height:34px; border-radius:50%; object-fit:cover; }
+.avatar-sm{ width:42px; height:42px; border-radius:50%; object-fit:cover; }
+.avatar-lg{ width:90px; height:90px; border-radius:50%; object-fit:cover; }
+.avatar-xl{ width:120px; height:120px; border-radius:50%; object-fit:cover; }
+.ring-gold{ outline:3px solid var(--ring); outline-offset:3px; border-radius:50%; }
+.shadow-gold{ box-shadow:0 10px 30px rgba(211,169,59,.35); }
+
+.grad-yellow{ background:linear-gradient(90deg,#ffd84b,#fff); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+.navbar .nav-link{ border-radius:.75rem; }
+.navbar .nav-link:hover{ background:rgba(255,255,255,.08); }
+
+.carousel .carousel-control-prev-icon,
+.carousel .carousel-control-next-icon{ filter: drop-shadow(0 4px 10px rgba(0,0,0,.6)); }
+
+/* ==== Profile tweaks ==== */
+.profile-hero::after{
+  content:""; position:absolute; inset:-30% -10% auto -10%;
+  height:140%; background:radial-gradient(600px 300px at 20% 0, rgba(255,193,7,.18), transparent),
+             radial-gradient(500px 260px at 80% 30%, rgba(255,255,255,.06), transparent);
+  pointer-events:none; filter: blur(40px);
+}
+
+/* Floating action button (settings) */
+.fab-settings{
+  position: fixed; inset:auto 1rem 1rem auto; z-index: 1050;
+  border-radius: 999px; padding: .75rem 1rem; backdrop-filter: blur(8px);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.fab-settings:hover{ transform: translateY(-2px); box-shadow:0 12px 32px rgba(255,193,7,.35); }
+
+/* Make small badges & cards extra glassy */
+.badge.glass{ background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); }
+.card-glass img{ display:block; object-fit:cover; }
+
+/* Subtle animated border glow for cards */
+.card-glass{
+  position:relative;
+}
+.card-glass::after{
+  content:"";
+  position:absolute; inset:0;
+  border-radius:18px;
+  background: radial-gradient(600px 300px at -10% -20%, rgba(245,197,66,.08), transparent 60%),
+              radial-gradient(600px 300px at 110% 120%, rgba(102,195,255,.07), transparent 60%);
+  pointer-events:none;
+}
+
+/* navbar hover */
+.navbar .nav-link{ opacity:.9 }
+.navbar .nav-link:hover{ opacity:1 }
+
+/* Buttons scale on hover */
+.btn, .icon-btn{ transition: transform .12s ease }
+.btn:hover, .icon-btn:hover{ transform: translateY(-1px) }
+
+/* Modal glass */
+.modal-content.glass{ background: rgba(20,24,32,.9); border:1px solid rgba(255,255,255,.15) }
+
+<style>
+.input-glass{ backdrop-filter: blur(8px); background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color:#fff; }
+.btn-glass{ backdrop-filter: blur(8px); background: rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); color:#fff; }
+.chat-bubble{ max-width:78%; margin:.35rem 0; padding:.6rem .75rem; border-radius:16px; }
+.chat-bubble.me{ margin-left:auto; background:rgba(255,197,39,.12); border:1px solid rgba(255,197,39,.28); }
+.chat-bubble.other{ margin-right:auto; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15); }
+.chat-img{ border-radius:14px; overflow:hidden; display:block; }
+.chat-img img{ width:100%; height:auto; display:block; }
+.bubble-meta{ display:flex; gap:.5rem; align-items:center; justify-content:flex-end; opacity:.8; }
+</style>

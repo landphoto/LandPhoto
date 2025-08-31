@@ -1,0 +1,75 @@
+{# استخدم with context حتى يشوف الماكرو المتغيرات العالمية مثل current_user #}
+{% macro photo_card(p) %}
+  <article class="lp-card card card-glass border-0 overflow-hidden mb-4">
+
+    {# صورة مربعة بنسبة 1:1 مع قصّ cover #}
+    <div class="lp-photo-wrap">
+      {% if p.images|length %}
+        <img class="lp-photo" src="{{ p.images[0].url }}" alt="photo">
+      {% endif %}
+
+      {# شارة عدد الصور إن وجدت #}
+      {% if p.image_count and p.image_count > 1 %}
+      <span class="position-absolute bottom-0 end-0 m-2 badge rounded-pill bg-dark bg-opacity-75 text-white d-inline-flex align-items-center gap-1 px-3 py-2 shadow">
+        {{ p.image_count }} صورة <i class="bi bi-images"></i>
+      </span>
+      {% endif %}
+    </div>
+
+    <div class="card-body lp-body">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <small class="badge text-bg-dark rounded-pill px-3 py-2">
+          <i class="bi bi-clock me-1"></i> {{ format_time(p.created_at) }}
+        </small>
+
+        <a class="text-decoration-none text-muted d-inline-flex align-items-center"
+           href="{{ url_for('profile', username=p.author.username) }}">
+          <img src="{{ p.author.avatar_url }}" class="lp-avatar-xs gold-ring me-1" alt="">
+          <span class="fw-semibold">{{ p.author.display_name or p.author.username }}</span>
+        </a>
+      </div>
+
+      {% if p.caption %}
+        <p class="mb-2">{{ p.caption|e }}</p>
+      {% endif %}
+      {% if p.tags %}
+        <div class="small text-warning">#{{ p.tags }}</div>
+      {% endif %}
+
+      <div class="d-flex flex-wrap gap-2 align-items-center mt-2">
+        {% if current_user.is_authenticated and p.user_id == current_user.id %}
+  <form action="{{ url_for('post_delete', pid=p.id) }}" method="post" class="m-0">
+    <button type="button"
+            class="btn btn-glass text-danger js-confirm"
+            data-confirm-text="حذف المنشور؟ لا يمكن التراجع.">
+      <i class="bi bi-trash"></i>
+    </button>
+  </form>
+{% endif %}
+
+        {% set liked = p.is_liked_by(current_user) %}
+        <a href="#" class="btn {{ 'btn-gold' if liked else 'btn-glass' }}" data-like="{{ p.id }}">
+          <i class="bi bi-heart{{ '' if liked else '-pulse' }} me-1"></i>
+          <span data-like-count>{{ p.like_count }}</span>
+        </a>
+
+        {% set saved = p.is_bookmarked_by(current_user) %}
+        <a href="#" class="btn {{ 'btn-gold' if saved else 'btn-glass' }}" data-save="{{ p.id }}">
+          <i class="bi bi-bookmark-heart"></i>
+        </a>
+
+        {% if p.allow_share %}
+          <a class="btn btn-glass" href="{{ p.images[0].url }}" download>
+            <i class="bi bi-share"></i>
+          </a>
+        {% endif %}
+      </div>
+
+      {# التعليقات الزجاجية #}
+      <div class="mt-3">
+        {% set post = p %}
+        {% include "partials/comments.html" %}
+      </div>
+    </div>
+  </article>
+{% endmacro %}

@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}تسجيل الدخول{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+
+      <!-- صندوق زجاجي -->
+      <div class="card card-glass glass-strong shadow-lg border-0">
+        <div class="card-body p-4 p-md-5 text-contrast">
+
+          <div class="d-flex align-items-center justify-content-between mb-4">
+            <h2 class="m-0 fw-bold text-glow-weak">تسجيل الدخول</h2>
+            <span class="badge bg-warning text-dark rounded-pill">
+              <i class="bi bi-box-arrow-in-right me-1"></i> دخول
+            </span>
+          </div>
+
+          <!-- رسائل فلاش -->
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              <div class="mb-3">
+                {% for category, msg in messages %}
+                  <div class="alert alert-{{ 'warning' if category=='message' else category }} glass-strong border-0 text-contrast" role="alert">
+                    {{ msg }}
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+          {% endwith %}
+
+          <!-- النموذج -->
+          <form method="post" action="{{ url_for('auth_login') }}" class="needs-validation" novalidate>
+            <div class="mb-3">
+              <label class="form-label text-light-80" for="username">اسم المستخدم</label>
+              <input type="text" class="form-control form-control-lg glass-input text-contrast" id="username" name="username" required placeholder="اكتب اسم المستخدم">
+              <div class="invalid-feedback">يرجى إدخال اسم المستخدم.</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label text-light-80" for="password">كلمة المرور</label>
+              <div class="input-group input-group-lg">
+                <input type="password" class="form-control glass-input text-contrast" id="password" name="password" required placeholder="••••••••">
+                <button type="button" class="btn btn-glass btn-contrast" id="togglePass" aria-label="إظهار/إخفاء">
+                  <i class="bi bi-eye"></i>
+                </button>
+                <div class="invalid-feedback">يرجى إدخال كلمة المرور.</div>
+              </div>
+              <small class="text-light-70 d-block mt-2">تذكّر: يمكنك إنشاء حساب من الزر بالأسفل إن لم يكن لديك حساب.</small>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-between mt-4">
+              <a class="btn btn-outline-light px-4 rounded-3" href="{{ url_for('auth_register') }}">
+                إنشاء حساب
+              </a>
+              <button class="btn btn-warning text-dark px-4 rounded-3" type="submit">
+                دخول
+              </button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+
+      <p class="text-center mt-4 text-light-70 small">Diyar • {{ now.year }} • صنع بحب</p>
+
+    </div>
+  </div>
+</div>
+
+<!-- JS بسيط: إظهار/إخفاء كلمة المرور والتحقق -->
+<script>
+  (function () {
+    'use strict';
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.prototype.slice.call(forms).forEach(function(form){
+      form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) { event.preventDefault(); event.stopPropagation(); }
+        form.classList.add('was-validated');
+      }, false);
+    });
+
+    const toggle = document.getElementById('togglePass');
+    const pass   = document.getElementById('password');
+    if (toggle && pass) {
+      toggle.addEventListener('click', function(){
+        const isText = pass.getAttribute('type') === 'text';
+        pass.setAttribute('type', isText ? 'password' : 'text');
+        this.querySelector('i').className = isText ? 'bi bi-eye' : 'bi bi-eye-slash';
+      });
+    }
+  })();
+</script>
+
+{% endblock %}

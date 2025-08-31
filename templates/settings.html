@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+{% block title %}إعدادات الحساب{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-xl-9">
+
+      <div class="d-flex align-items-center justify-content-between mb-4">
+        <h2 class="fw-bold m-0 text-contrast"><i class="bi bi-gear me-2 text-warning"></i> إعدادات الحساب</h2>
+        <a href="{{ url_for('profile', username=current_user.username) }}" class="btn btn-glass rounded-pill">
+          <i class="bi bi-person-circle me-1"></i> العودة للبروفايل
+        </a>
+      </div>
+
+      <!-- البيانات العامة -->
+      <div class="card glass-card border-0 mb-4">
+        <div class="card-body p-4">
+          <h5 class="text-warning mb-3">البيانات العامة</h5>
+          <form class="row g-4" method="post" action="{{ url_for('settings') }}" enctype="multipart/form-data">
+            <input type="hidden" name="action" value="profile">
+
+            <!-- صورة + اختيار ملف -->
+            <div class="col-12 col-md-5 d-flex align-items-center gap-3">
+              <div class="avatar-wrap">
+                <img id="avatarPreview" src="{{ current_user.avatar_url }}" alt="Avatar">
+                <span class="ring"></span>
+              </div>
+
+              <div class="w-100">
+                <label class="form-label text-contrast small mb-2">تغيير الصورة</label>
+
+                <!-- زر اختيار ملف زجاجي -->
+                <div class="file-glass">
+                  <input type="file" id="avatarInput" name="avatar" accept="image/*">
+                  <label for="avatarInput" class="btn btn-glass w-100">
+                    <i class="bi bi-upload me-2"></i> اختيار ملف
+                  </label>
+                </div>
+
+                <div class="form-check mt-2">
+                  <input class="form-check-input" type="checkbox" value="1" id="removeAvatar" name="remove_avatar">
+                  <label class="form-check-label text-light-70" for="removeAvatar">إزالة الصورة الحالية</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- الاسم المعروض + اسم المستخدم + نبذة -->
+            <div class="col-12 col-md-7">
+              <div class="mb-3">
+                <label class="form-label text-contrast">الاسم المعروض</label>
+                <input type="text" class="form-control glass-input" name="display_name"
+                       value="{{ current_user.display_name or current_user.username }}" placeholder="اسمك الجميل">
+              </div>
+
+              <!-- اسم المستخدم + فحص فوري -->
+              <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <label class="form-label text-contrast mb-1">اسم المستخدم</label>
+                  <small id="userFeedback" class="badge rounded-pill bg-secondary-subtle text-contrast d-none"></small>
+                </div>
+                <div class="input-group">
+                  <span class="input-group-text glass-input">@</span>
+                  <input type="text" class="form-control glass-input" id="usernameInput"
+                         value="{{ current_user.username }}" dir="ltr" inputmode="latin"
+                         placeholder="user.name_123" autocomplete="off">
+                </div>
+                <div class="form-text text-light-60 mt-1">
+                  يُسمح بالحروف اللاتينية والأرقام والنقطة والشرطة السفلية فقط (3–32).
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label text-contrast">النبذة</label>
+                <textarea class="form-control glass-input" name="bio" rows="5" placeholder="اكتب شيئاً لطيفاً…">{{ current_user.bio or '' }}</textarea>
+              </div>
+
+              <div class="d-flex gap-2 flex-wrap">
+                <button class="btn btn-warning text-dark rounded-pill px-4" type="submit">
+                  <i class="bi bi-save2 me-1"></i> حفظ
+                </button>
+                <a href="{{ url_for('profile', username=current_user.username) }}" class="btn btn-glass rounded-pill px-4">العودة للبروفايل</a>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- كلمة المرور -->
+      <div class="card glass-card border-0 mb-4">
+        <div class="card-body p-4">
+          <h5 class="text-warning mb-3">كلمة المرور</h5>
+          <form method="post" action="{{ url_for('settings') }}" class="row g-3">
+            <input type="hidden" name="action" value="password">
+            <div class="col-12 col-md-4">
+              <label class="form-label text-contrast">كلمة المرور الحالية</label>
+              <input type="password" class="form-control glass-input" name="old_password" autocomplete="current-password">
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label text-contrast">كلمة مرور جديدة</label>
+              <input type="password" class="form-control glass-input" name="new_password" autocomplete="new-password">
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label text-contrast">تأكيد كلمة المرور</label>
+              <input type="password" class="form-control glass-input" name="confirm_password" autocomplete="new-password">
+            </div>
+            <div class="col-12">
+              <button class="btn btn-warning text-dark rounded-pill px-4"><i class="bi bi-shield-lock me-1"></i> تحديث</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- الإشعارات -->
+      <div class="card glass-card border-0">
+        <div class="card-body p-4">
+          <h5 class="text-warning mb-3">الإشعارات</h5>
+          <form method="post" action="{{ url_for('settings') }}" class="row g-3">
+            <input type="hidden" name="action" value="notifications">
+
+            <div class="col-12 col-md-4">
+              <div class="form-switch glass-switch">
+                <input class="form-check-input" type="checkbox" id="notifyLikes" name="notify_likes" {% if current_user.notify_likes %}checked{% endif %}>
+                <label class="form-check-label text-contrast" for="notifyLikes"><i class="bi bi-heart-fill text-danger me-1"></i> إشعارات الإعجابات</label>
+              </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <div class="form-switch glass-switch">
+                <input class="form-check-input" type="checkbox" id="notifyComments" name="notify_comments" {% if current_user.notify_comments %}checked{% endif %}>
+                <label class="form-check-label text-contrast" for="notifyComments"><i class="bi bi-chat-dots-fill text-info me-1"></i> إشعارات التعليقات</label>
+              </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <div class="form-switch glass-switch">
+                <input class="form-check-input" type="checkbox" id="notifyFollows" name="notify_follows" {% if current_user.notify_follows %}checked{% endif %}>
+                <label class="form-check-label text-contrast" for="notifyFollows"><i class="bi bi-person-plus-fill text-success me-1"></i> إشعارات المتابعة</label>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <button class="btn btn-warning text-dark rounded-pill px-4"><i class="bi bi-save me-1"></i> حفظ التفضيلات</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="text-center mt-5 text-light-60 small">Bootstrap 5 · {{ now.year }} · صنع بحب</div>
+    </div>
+  </div>
+</div>
+
+<!-- أنماط -->
+<style>
+  .text-contrast{color:rgba(255,255,255,.96)}
+  .text-light-70{color:rgba(255,255,255,.72)}
+  .text-light-60{color:rgba(255,255,255,.60)}
+
+  .glass-card{
+    background:
+      radial-gradient(120% 120% at 0% 0%, rgba(255,255,255,.06), rgba(255,255,255,0) 60%),
+      linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+    border:1px solid rgba(255,255,255,.14);
+    border-radius:1.25rem;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  }
+  .btn-glass{
+    border:1px solid rgba(255,255,255,.18)!important;
+    background:rgba(255,255,255,.07)!important;
+    color:#fff!important; backdrop-filter: blur(10px);
+  }
+  .glass-input{
+    background: rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.18);
+    color:#fff; backdrop-filter: blur(10px);
+  }
+  .glass-input::placeholder{color:rgba(255,255,255,.55)}
+  .form-control:focus{box-shadow:0 0 0 .2rem rgba(255,193,7,.15); border-color:rgba(255,193,7,.35)}
+
+  /* زر اختيار ملف زجاجي */
+  .file-glass{position:relative}
+  .file-glass input[type=file]{position:absolute; inset:0; opacity:0; cursor:pointer}
+  .file-glass .btn{width:100%}
+
+  /* صورة بروفايل دائرية 100% */
+  .avatar-wrap{
+    position:relative; width:132px; aspect-ratio:1/1;
+    display:inline-block;
+  }
+  .avatar-wrap img{
+    width:100%; height:100%; object-fit:cover;
+    border-radius:50%; aspect-ratio:1/1;
+    border:2px solid rgba(255,255,255,.18);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 10px 26px rgba(0,0,0,.35);
+    background: rgba(255,255,255,.05);
+    display:block;
+  }
+  .avatar-wrap .ring{
+    position:absolute; inset:-7px; border-radius:50%;
+    border:4px solid rgba(255,193,7,.95);
+    box-shadow: 0 0 0 3px rgba(255,193,7,.18), 0 10px 20px rgba(255,193,7,.25), 0 0 24px rgba(255,193,7,.45);
+    pointer-events:none;
+  }
+
+  .glass-switch .form-check-input{
+    width: 2.6rem; height:1.3rem; cursor:pointer;
+    background-color: rgba(255,255,255,.18);
+    border:1px solid rgba(255,255,255,.25);
+  }
+  .glass-switch .form-check-input:checked{background-color:#ffc107; border-color:#ffc107}
+</style>
+
+<!-- JS: معاينة الصورة + فحص اسم المستخدم (Debounce + ألوان) -->
+<script>
+(function(){
+  // Preview avatar
+  const input = document.getElementById('avatarInput');
+  const preview = document.getElementById('avatarPreview');
+  if (input && preview){
+    input.addEventListener('change', () => {
+      const f = input.files && input.files[0];
+      if(!f) return;
+      const r = new FileReader();
+      r.onload = e => preview.src = e.target.result;
+      r.readAsDataURL(f);
+    });
+  }
+
+  // Username availability check
+  const uname = document.getElementById('usernameInput');
+  const fb = document.getElementById('userFeedback');
+  const CURRENT = "{{ current_user.username }}";
+
+  const classes = {
+    ok: 'bg-success-subtle text-success-emphasis',
+    bad: 'bg-danger-subtle text-danger-emphasis',
+    warn: 'bg-warning-subtle text-dark',
+    info: 'bg-info-subtle text-info-emphasis',
+    neutral: 'bg-secondary-subtle text-contrast'
+  };
+
+  function setBadge(msg, type){
+    fb.className = `badge rounded-pill ${classes[type]||classes.neutral}`;
+    fb.textContent = msg;
+    fb.classList.remove('d-none');
+  }
+
+  function validPattern(v){
+    return /^[A-Za-z0-9_.]{3,32}$/.test(v);
+  }
+
+  let t=null;
+  function debounce(fn, ms){
+    return function(...args){
+      clearTimeout(t); t=setTimeout(()=>fn.apply(this,args), ms);
+    }
+  }
+
+  async function check(v){
+    if(!v){ fb.classList.add('d-none'); return; }
+    if(v === CURRENT){ setBadge('هذا اسمك الحالي', 'info'); return; }
+    if(!validPattern(v)){ setBadge('غير صالح: فقط حروف/أرقام/._ (3–32)', 'bad'); return; }
+
+    try{
+      const res = await fetch(`/api/check-username?u=${encodeURIComponent(v)}`);
+      const data = await res.json();
+      if(data.ok && data.available){ setBadge('متاح ✅', 'ok'); }
+      else if(data.ok && !data.available){ setBadge('محجوز ❌', 'bad'); }
+      else { setBadge('تعذر التحقق', 'warn'); }
+    }catch(e){
+      setBadge('تعذر الاتصال', 'warn');
+    }
+  }
+
+  if(uname){
+    uname.addEventListener('input', debounce(()=>check(uname.value.trim()), 450));
+    // تشغيل مبدئي
+    setTimeout(()=>check(uname.value.trim()), 50);
+  }
+})();
+</script>
+{% endblock %}

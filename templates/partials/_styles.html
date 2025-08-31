@@ -1,0 +1,91 @@
+<style>
+/* خطوط وهوية */
+:root{
+  --gold:#f4c430; --gold-2:#d4af37; --ink:#0b0e16; --glass:rgba(255,255,255,.06);
+  --glass-border:rgba(255,255,255,.14);
+}
+body{font-family:"Cairo","Tajawal",system-ui,-apple-system,"Segoe UI","Roboto",sans-serif;}
+.fw-extrabold{font-weight:800}
+.text-gold{color:var(--gold)!important}
+.bg-gold{background:var(--gold)!important}
+.tracking-wide{letter-spacing:.4px}
+
+/* خلفية */
+.lp-bg{
+  background: radial-gradient(1200px 800px at 110% -10%, #1b2735 0%, transparent 50%),
+              radial-gradient(1000px 600px at -10% 0%, #141b26 0%, transparent 45%),
+              linear-gradient(180deg, #0b0e16 0%, #0f1420 100%);
+  min-height:100dvh;
+}
+
+/* زجاج */
+.lp-blur-glass{
+  background:var(--glass);
+  backdrop-filter:saturate(140%) blur(14px);
+  -webkit-backdrop-filter:saturate(140%) blur(14px);
+  border:1px solid var(--glass-border);
+  border-radius:16px;
+}
+.glass{background:var(--glass); backdrop-filter: blur(10px); border:1px solid var(--glass-border);}
+
+/* أيقونات دائرية زجاجية */
+.lp-icon-btn{
+  --size:44px;
+  width:var(--size); height:var(--size);
+  display:inline-grid; place-items:center;
+  border-radius:12px; color:#e9ecef; text-decoration:none;
+  background:var(--glass); border:1px solid var(--glass-border);
+  transition:transform .2s ease, box-shadow .2s ease, background .2s ease;
+}
+.lp-icon-btn:hover{ transform:translateY(-2px); box-shadow:0 8px 30px rgba(0,0,0,.35); background:rgba(255,255,255,.08);}
+.lp-icon-btn i{font-size:1.2rem}
+
+/* زر زجاجي عام */
+.btn-glass{
+  background:var(--glass); color:#fff; border:1px solid var(--glass-border);
+  backdrop-filter: blur(8px); border-radius:14px;
+}
+.btn-glass:hover{ background:rgba(255,255,255,.10); color:#fff; }
+.btn-gold{ background:var(--gold); border-color:var(--gold-2); color:#111; border-radius:14px; }
+.btn-gold:hover{ filter:brightness(1.05); color:#000; }
+
+/* Chip */
+.lp-chip{ display:inline-flex; align-items:center; padding:.3rem .6rem; border-radius:999rem; }
+.lp-avatar-xs{ width:26px; height:26px; object-fit:cover; border-radius:50%; }
+
+/* حلقات ذهبية للأفاتار */
+.gold-ring{
+  border:3px solid var(--gold-2);
+  box-shadow:0 0 0 4px rgba(212,175,55,.18), 0 14px 30px rgba(0,0,0,.45);
+}
+.lp-avatar-xl{ width:132px; height:132px; border-radius:50%; object-fit:cover; }
+
+/* بطاقات منشورات زجاجية */
+.lp-card{ border-radius:18px; overflow:hidden; }
+.lp-card.glass{box-shadow: 0 10px 30px rgba(0,0,0,.35);}
+.lp-card .lp-photo{border-radius:14px;}
+.lp-actions .btn{border-radius:14px;}
+
+/* مدخلات زجاجية */
+.glass-input.form-control, .glass-input.form-select, .form-switch .form-check-input{
+  background:rgba(255,255,255,.05); color:#fff; border:1px solid var(--glass-border);
+  border-radius:14px;
+}
+.glass-input:focus{ background:rgba(255,255,255,.08); box-shadow:0 0 0 .25rem rgba(244,196,48,.12); }
+
+/* أنيميشن خفيف */
+@keyframes fadeUp{from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:translateY(0)}}
+.fade-up{animation:fadeUp .5s ease both}
+.lp-ping{ box-shadow:0 0 0 8px rgba(255,193,7,.15); }
+
+/* عناوين */
+.lp-hero h1{ font-weight:800; line-height:1.2; }
+.lp-hero .dot{ width:.45rem; height:.45rem; display:inline-block; border-radius:50%; background:var(--gold); box-shadow:0 0 0 4px rgba(244,196,48,.12); }
+
+/* بطاقات الإشعارات */
+.lp-noti{ border-radius:14px; background:rgba(255,255,255,.05); border:1px solid var(--glass-border); }
+.lp-empty{ border-radius:16px; background:rgba(255,255,255,.04); border:1px dashed rgba(255,255,255,.15) }
+
+/* روابط أكثر أناقة */
+a.text-muted:hover{ color:#fff!important }
+</style>

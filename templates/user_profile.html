@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+{% block title %}ملف {{ user.display_name or user.username }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-xxl-10">
+
+      <!-- بطاقة البروفايل -->
+      <div class="card glass-card border-0 overflow-hidden mb-4">
+        <div class="card-body p-4 p-md-5">
+          <div class="row g-4 align-items-center">
+
+            <!-- الصورة + إطار زجاجي ذهبي + أورورا -->
+            <div class="col-12 col-md-4 d-flex justify-content-center">
+              <div class="avatar-frame position-relative">
+                <!-- Aurora Silk خلف الإطار -->
+                <span class="aurora-halo"></span>
+                <!-- صورة البروفايل داخل الإطار الزجاجي -->
+                <img id="profileAvatar" src="{{ user.avatar_url }}" alt="{{ user.username }}">
+              </div>
+            </div>
+
+            <!-- الاسم + شارة التوثيق + أزرار + إحصائيات صغيرة -->
+            <div class="col-12 col-md-8">
+              <div class="d-flex justify-content-center">
+                <h2 class="fw-bold m-0 text-contrast d-flex align-items-center gap-2 flex-wrap justify-content-center">
+                  {{ user.display_name or user.username }}
+                  <i class="bi bi-patch-check-fill verify-badge" title="موثّق"></i>
+                </h2>
+              </div>
+
+              <div class="text-light-70 text-center mt-3 mb-4">{{ user.bio or 'لا توجد نبذة بعد.' }}</div>
+
+              <div class="d-flex flex-wrap gap-2 mb-4 justify-content-center">
+                {% if current_user.is_authenticated and current_user.id == user.id %}
+                  <a href="{{ url_for('settings') }}" class="btn btn-glass rounded-pill">
+                    <i class="bi bi-sliders me-1"></i> الإعدادات
+                  </a>
+                  <a href="{{ url_for('upload') }}" class="btn btn-warning text-dark rounded-pill">
+                    <i class="bi bi-plus-circle me-1"></i> منشور جديد
+                  </a>
+                {% else %}
+                  <button id="followBtn" class="btn btn-glass rounded-pill px-4" data-username="{{ user.username }}">
+                    <i class="bi bi-person-plus me-1"></i> متابعة
+                  </button>
+                  <a class="btn btn-glass rounded-pill" href="{{ url_for('search') }}?q=@{{ user.username }}">
+                    <i class="bi bi-chat-dots me-1"></i> رسالة
+                  </a>
+                {% endif %}
+              </div>
+
+              <!-- إحصائيات صغيرة مستطيلة -->
+              <div class="row g-2 justify-content-center">
+                <div class="col-4 col-sm-3 col-lg-2">
+                  <div class="mini-rect text-center">
+                    <div class="mini-label">المنشورات</div>
+                    <div class="mini-val">{{ stats.posts }}</div>
+                  </div>
+                </div>
+                <div class="col-4 col-sm-3 col-lg-2">
+                  <div class="mini-rect text-center">
+                    <div class="mini-label">المتابِعون</div>
+                    <div class="mini-val">{{ stats.followers }}</div>
+                  </div>
+                </div>
+                <div class="col-4 col-sm-3 col-lg-2">
+                  <div class="mini-rect text-center">
+                    <div class="mini-label">يتابع</div>
+                    <div class="mini-val">{{ stats.following }}</div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- تبويبات -->
+      <ul class="nav nav-pills nav-fill glass-tabs rounded-4 mb-4">
+        <li class="nav-item">
+          <span class="nav-link active"><i class="bi bi-grid-3x3-gap me-1"></i> منشورات</span>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('saved') }}"><i class="bi bi-bookmark-heart me-1"></i> محفوظاتي</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('my_gallery') }}"><i class="bi bi-images me-1"></i> معرضي</a>
+        </li>
+      </ul>
+
+      <!-- شبكة الصور -->
+      {% if photos %}
+      <div class="row g-4">
+        {% for p in photos %}
+          {% set img = (p.images[0] if p.images and p.images|length>0 else None) %}
+          <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card glass-card photo-card border-0 overflow-hidden h-100">
+              {% if img %}
+                <a href="{{ url_for('home') }}#post-{{ p.id }}" class="ratio ratio-1x1">
+                  <img src="{{ img.thumb_url }}" class="w-100 h-100 object-fit-cover" alt="photo {{ p.id }}">
+                </a>
+              {% else %}
+                <div class="ratio ratio-1x1 d-flex align-items-center justify-content-center text-light-60">
+                  لا توجد صورة
+                </div>
+              {% endif %}
+              <div class="card-body p-3">
+                <div class="d-flex align-items-center justify-content-between">
+                  <div class="small text-light-60">{{ format_time(p.created_at) }}</div>
+                  <div class="d-flex align-items-center gap-3">
+                    <span class="text-contrast"><i class="bi bi-heart-fill text-danger me-1"></i> {{ p.like_count }}</span>
+                    <span class="text-contrast"><i class="bi bi-chat-dots text-info me-1"></i> {{ p.comment_count }}</span>
+                  </div>
+                </div>
+                {% if p.caption %}
+                <div class="mt-2 text-contrast small">{{ p.caption }}</div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      {% else %}
+        <div class="text-center text-light-60 py-5">لا توجد منشورات بعد.</div>
+      {% endif %}
+
+      {% if pagination %}
+      <nav class="mt-4 d-flex justify-content-center">
+        <ul class="pagination pagination-glass m-0">
+          <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+            <a class="page-link" href="{{ url_for('profile', username=user.username, page=pagination.prev_num) if pagination.has_prev else '#' }}">السابق</a>
+          </li>
+          <li class="page-item disabled"><span class="page-link">صفحة {{ pagination.page }} / {{ pagination.pages }}</span></li>
+          <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+            <a class="page-link" href="{{ url_for('profile', username=user.username, page=pagination.next_num) if pagination.has_next else '#' }}">التالي</a>
+          </li>
+        </ul>
+      </nav>
+      {% endif %}
+
+      <div class="text-center mt-5 text-light-60 small">Bootstrap 5 · {{ now.year }} · ملف المستخدم</div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== Styles ====== -->
+<style>
+  .text-contrast{color:rgba(255,255,255,.97)}
+  .text-light-70{color:rgba(255,255,255,.72)}
+  .text-light-60{color:rgba(255,255,255,.60)}
+  .object-fit-cover{object-fit:cover}
+
+  .glass-card{
+    background:
+      radial-gradient(120% 120% at 0% 0%, rgba(255,255,255,.06), rgba(255,255,255,0) 60%),
+      linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+    border:1px solid rgba(255,255,255,.14);
+    border-radius:1.25rem;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  }
+  .btn-glass{
+    border:1px solid rgba(255,255,255,.18)!important;
+    background:rgba(255,255,255,.07)!important;
+    color:#fff!important; backdrop-filter: blur(10px);
+  }
+  .glass-tabs .nav-link{
+    border-radius: 1rem;
+    color: rgba(255,255,255,.85);
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(255,255,255,.06);
+    backdrop-filter: blur(10px);
+  }
+  .glass-tabs .nav-link.active{
+    color:#111; background:#ffc107; border-color:#ffc107;
+  }
+  .pagination-glass .page-link{
+    color:#fff; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14);
+    backdrop-filter: blur(10px);
+  }
+  .pagination-glass .page-item.disabled .page-link{color:rgba(255,255,255,.45)}
+
+  /* ===== Avatar: Glass Gold Halo + Aurora ===== */
+  .avatar-frame{
+    width:140px; aspect-ratio:1/1; position:relative; border-radius:50%;
+    padding:10px;                      /* سمك الإطار الزجاجي */
+    background: rgba(255,210,63,.20);  /* صبغة زجاجية مذهّبة */
+    border: 1px solid rgba(255,255,255,.16);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    box-shadow:
+      inset 0 0 0 2px rgba(255,210,63,.35),
+      0 8px 22px rgba(255,210,63,.15),
+      0 10px 26px rgba(0,0,0,.35);
+  }
+  /* حلقة لمعة رقيقة على المحيط */
+  .avatar-frame::after{
+    content:""; position:absolute; inset:-2px; border-radius:50%;
+    --g: conic-gradient(from 0deg, rgba(255,215,64,.0) 0 78%, rgba(255,215,64,.55) 88%, rgba(255,215,64,0) 100%);
+    mask: radial-gradient(circle at center, transparent 64%, #000 65%);
+    -webkit-mask: radial-gradient(circle at center, transparent 64%, #000 65%);
+    background: var(--g);
+    animation: sweep 4.8s linear infinite;
+    pointer-events:none;
+  }
+  @keyframes sweep { to { transform: rotate(360deg); } }
+
+  .avatar-frame img{
+    position:relative; z-index:2;
+    width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;
+    background:#000;
+    box-shadow: 0 10px 24px rgba(0,0,0,.35);
+  }
+
+  /* Aurora Silk خلف الإطار (ناعمة وشفافة) */
+  .aurora-halo{
+    position:absolute; z-index:1; inset:-16px; border-radius:50%;
+    filter: blur(14px) saturate(120%);
+    background:
+      conic-gradient(from 0deg,
+        #ffd45033,
+        #ff6b6b33,
+        #6bc2ff33,
+        #6bffb233,
+        #ffd45033);
+    animation: auroraSpin 16s linear infinite;
+    pointer-events:none;
+  }
+  @keyframes auroraSpin { to { transform: rotate(360deg); } }
+
+  /* شارة التوثيق */
+  .verify-badge{
+    font-size: 1.25rem;
+    color: #1da1f2; /* بدون ظل */
+  }
+
+  /* إحصائيات صغيرة مستطيلة */
+  .mini-rect{
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: .75rem;
+    padding: .5rem .25rem;
+    backdrop-filter: blur(10px);
+  }
+  .mini-rect .mini-label{
+    font-size: .75rem;
+    color: rgba(255,255,255,.65);
+    margin-bottom: .15rem;
+  }
+  .mini-rect .mini-val{
+    font-weight: 700;
+    color: rgba(255,255,255,.95);
+  }
+</style>
+
+<!-- ====== Script: متابعة فقط ====== -->
+<script>
+(function(){
+  const followBtn = document.getElementById('followBtn');
+  if(!followBtn) return;
+  const uname = followBtn.dataset.username;
+  followBtn.addEventListener('click', async ()=>{
+    followBtn.disabled = true;
+    try{
+      const res = await fetch(`/follow/${encodeURIComponent(uname)}`, {method:'POST'});
+      const data = await res.json();
+      if(data && data.ok){
+        followBtn.innerHTML = data.on
+          ? `<i class="bi bi-person-check me-1"></i> متابَع`
+          : `<i class="bi bi-person-plus me-1"></i> متابعة`;
+      }
+    }catch(e){}
+    followBtn.disabled = false;
+  });
+})();
+</script>
+{% endblock %}

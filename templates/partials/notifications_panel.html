@@ -1,0 +1,23 @@
+{% macro noti_item(n) %}
+  <div class="lp-noti p-3 d-flex align-items-center gap-3 fade-up">
+    <img src="{{ n.actor.avatar_url if n.actor_id else url_for('static', filename='avatars/default.png') }}" class="lp-avatar-xs gold-ring">
+    <div class="flex-grow-1">
+      {% if n.ntype == 'like' %}
+        <div>أعجب <b>{{ n.actor.display_name or n.actor.username }}</b> بصورتك</div>
+      {% elif n.ntype == 'comment' %}
+        <div>علق <b>{{ n.actor.display_name or n.actor.username }}</b> على صورتك</div>
+      {% elif n.ntype == 'follow' %}
+        <div>بدأ <b>{{ n.actor.display_name or n.actor.username }}</b> بمتابعتك</div>
+      {% else %}
+        <div>تنبيه</div>
+      {% endif %}
+      <div class="small text-secondary">{{ format_time(n.created_at) }}</div>
+    </div>
+    {% if n.photo_id %}
+      {% set ph = n.photo %}
+      {% if ph and ph.images|length %}
+        <img src="{{ ph.images[0].thumb_url }}" class="rounded" width="54" height="54">
+      {% endif %}
+    {% endif %}
+  </div>
+{% endmacro %}

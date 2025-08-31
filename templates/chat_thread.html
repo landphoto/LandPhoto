@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>دردشة • {{ other.display_name or other.username }}</title>
+
+  <!-- Bootstrap 5.3 + Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    :root{
+      --glass-bg: rgba(255,255,255,.06);
+      --glass-bd: rgba(255,255,255,.18);
+      --glass-shadow: 0 6px 30px rgba(0,0,0,.25);
+      --bubble-me: rgba(33,150,243,.16);
+      --bubble-other: rgba(255,255,255,.08);
+    }
+    body{ background: radial-gradient(1200px 600px at 50% -10%, #0f2338 0%, #0c1825 40%, #0a1320 100%) fixed; color:#e5eef6; }
+    .glass{
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-bd);
+      backdrop-filter: blur(14px) saturate(140%);
+      -webkit-backdrop-filter: blur(14px) saturate(140%);
+      box-shadow: var(--glass-shadow);
+      border-radius: 20px;
+    }
+    .chat-header{ position: sticky; top: 0; z-index: 20; border-radius: 28px; }
+    .avatar{ width:44px;height:44px; border-radius:50%; object-fit:cover; border:1px solid rgba(255,255,255,.25)}
+    .status-chip{
+      font-size:.9rem; padding:.25rem .6rem; border-radius:999px; display:inline-flex; align-items:center; gap:.35rem;
+      background: rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.18);
+    }
+    .dot{ width:10px;height:10px;border-radius:50%;}
+
+    #messages{ padding-bottom: 118px; }
+    .bubble{
+      max-width: 82vw; border-radius: 18px; padding:14px 16px; margin:10px 0;
+      border:1px solid rgba(255,255,255,.14);
+    }
+    .bubble.me{ background: var(--bubble-me); margin-inline-start:auto; }
+    .bubble.other{ background: var(--bubble-other); margin-inline-end:auto; }
+    .bubble time{ font-size:.8rem; opacity:.8 }
+    .bubble .ticks{ font-size:.95rem; opacity:.85; margin-inline-start:.35rem }
+    .bubble .img-wrap{ display:block; overflow:hidden; border-radius:16px; border:1px solid rgba(255,255,255,.17); }
+    .bubble .img-wrap img{ display:block; width:100%; height:auto }
+
+    .composer{ position: fixed; inset-inline:0; bottom: 8px; z-index: 30; }
+    .composer .bar{ border-radius: 22px; padding:.55rem; }
+    .composer textarea{
+      resize:none; height:46px; border-radius:14px; background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.18); color:#eaf3fb;
+    }
+    .composer .btn-icon{
+      width:52px;height:52px; border-radius:16px; border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06); display:flex; align-items:center; justify-content:center;
+    }
+    .composer .btn-send{
+      background: #ffc107; color:#111; border:none; width:60px;height:60px; border-radius:18px;
+      box-shadow: 0 10px 24px rgba(255,193,7,.25);
+    }
+    #attachPreview{ display:none; }
+    #attachPreview.show{ display:flex; }
+    #attachPreview img{ width:58px; height:58px; border-radius:12px; object-fit:cover; border:1px solid rgba(255,255,255,.22) }
+
+    /* GIF modal */
+    .modal-content.glass{ border-radius: 22px; }
+    .gifs-toolbar .form-control{ background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.18); color:#eaf3fb; }
+    .gifs-grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; }
+    .gif-item{ border-radius:14px; overflow:hidden; border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.05); aspect-ratio:1/1; cursor:pointer; }
+    .gif-item img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+    /* Emoji modal */
+    emoji-picker{ --background: rgba(20,26,36,.7); --border-color: rgba(255,255,255,.18); --category-button-color: #e5eef6; --category-icon-color: #e5eef6; --search-background-color: rgba(255,255,255,.06); --search-border-color: rgba(255,255,255,.18); --secondary-text-color:#bcd0e1; }
+  </style>
+</head>
+<body>
+
+<div class="container py-3">
+  <!-- Header -->
+  <div class="chat-header glass px-3 py-2 mb-3">
+    <div class="d-flex align-items-center justify-content-between">
+      <a href="{{ url_for('chat_inbox') }}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+        <i class="bi bi-arrow-right"></i> رجوع
+      </a>
+      <div class="d-flex align-items-center gap-3">
+        <img class="avatar" src="{{ other.avatar_url }}" alt="avatar">
+        <div class="text-center">
+          <div class="fw-semibold">{{ other.display_name or other.username }}</div>
+        </div>
+        <div class="status-chip">
+          <span class="dot me-1" style="background: {{ '#27ae60' if is_online(other) else '#9aa4ae' }};"></span>
+          {{ 'متصل الآن' if is_online(other) else 'غير متصل' }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div id="messages">
+    {% for m in messages %}
+      {% set me = (m.sender_id == current_user.id) %}
+      <div class="bubble {{ 'me' if me else 'other' }}">
+        {% if m.attachment_type == 'image' and m.attachment_file %}
+          <a class="img-wrap mb-2" href="{{ url_for('static', filename='chat_uploads/' + m.attachment_file) }}" target="_blank">
+            <img src="{{ url_for('static', filename='chat_thumbs/' + (m.attachment_thumb or m.attachment_file)) }}" alt="img">
+          </a>
+        {% endif %}
+        {% if m.body %}
+          <div class="mb-1">{{ m.body | nl2br | safe }}</div>
+        {% endif %}
+        <div class="d-flex align-items-center justify-content-{{ 'end' if me else 'start' }}">
+          <time>{{ timeago_ar(m.created_at) }}</time>
+          {% if me %}<span class="ticks">✓✓</span>{% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Composer -->
+<div class="composer px-3">
+  <div class="container">
+    <div class="bar glass d-flex align-items-center gap-2 flex-wrap" id="dropZone">
+      <button id="sendBtn" class="btn btn-send order-3 order-sm-0"><i class="bi bi-send"></i></button>
+
+      <div id="attachPreview" class="align-items-center gap-2 flex-grow-0">
+        <img id="attachThumb" alt="">
+        <button class="btn btn-sm btn-outline-light rounded-pill" id="clearAttach">إزالة</button>
+      </div>
+
+      <div class="d-flex align-items-center gap-2 ms-auto">
+        <button class="btn-icon" id="emojiBtn" title="إيموجي"><i class="bi bi-emoji-smile fs-4"></i></button>
+        <button class="btn-icon" id="openGifBtn" title="GIF"><span class="fw-bold">GIF</span></button>
+        <button class="btn-icon" id="pickImageBtn" title="صورة"><i class="bi bi-image fs-4"></i></button>
+      </div>
+
+      <div class="flex-grow-1">
+        <textarea id="msgBody" class="form-control" placeholder="...اكتب رسالة" required></textarea>
+      </div>
+
+      <form id="sendForm" class="d-none">
+        <input type="hidden" name="thread_id" value="{{ thread.id }}">
+        <input type="file" id="fileInput" accept="image/*" class="d-none">
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- GIF Modal -->
+<div class="modal fade" id="gifModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content glass">
+      <div class="modal-header border-0">
+        <h5 class="modal-title">اختر GIF / ملصق</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="gifs-toolbar d-flex gap-2 mb-3">
+          <input id="gifSearch" class="form-control" type="search" placeholder="ابحث عن GIF... مثل: ضحك">
+          <button id="gifSearchBtn" class="btn btn-outline-light">بحث</button>
+        </div>
+        <div id="gifGrid" class="gifs-grid"></div>
+        <div id="gifEmpty" class="text-center small opacity-75 d-none mt-3">لا نتائج.</div>
+        <div id="gifLoading" class="text-center mt-3 d-none">
+          <div class="spinner-border text-light" role="status"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Emoji Modal -->
+<div class="modal fade" id="emojiModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content glass">
+      <div class="modal-header border-0">
+        <h5 class="modal-title">اختر إيموجي</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0">
+        <emoji-picker></emoji-picker>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
+
+<script>
+  // ==== API endpoints ====
+  const THREAD_ID = {{ thread.id }};
+  const SEND_URL  = "{{ url_for('api_chat_send') }}";
+  const FETCH_URL = "{{ url_for('api_chat_fetch') }}";
+  const TYPING_SET_URL = "{{ url_for('api_chat_typing') }}";
+  const TYPING_GET_URL = "{{ url_for('api_chat_typing_status') }}";
+
+  // GIPHY عبر الباك-إند (المفتاح عندك في app.py)
+  const GIPHY_TREND_URL  = "{{ url_for('giphy_trending') }}";
+  const GIPHY_SEARCH_URL = "{{ url_for('giphy_search') }}";
+
+  // ==== Elements ====
+  const listEl   = document.getElementById('messages');
+  const inputEl  = document.getElementById('msgBody');
+  const sendBtn  = document.getElementById('sendBtn');
+  const pickBtn  = document.getElementById('pickImageBtn');
+  const fileIn   = document.getElementById('fileInput');
+  const prevBox  = document.getElementById('attachPreview');
+  const prevImg  = document.getElementById('attachThumb');
+  const prevClr  = document.getElementById('clearAttach');
+  const dropZone = document.getElementById('dropZone');
+
+  const gifModalEl = document.getElementById('gifModal');
+  const gifModal = new bootstrap.Modal(gifModalEl);
+  const gifGrid = document.getElementById('gifGrid');
+  const gifEmpty = document.getElementById('gifEmpty');
+  const gifLoading = document.getElementById('gifLoading');
+  const gifSearch = document.getElementById('gifSearch');
+  const gifSearchBtn = document.getElementById('gifSearchBtn');
+  const openGif  = document.getElementById('openGifBtn');
+
+  const emojiModal = new bootstrap.Modal(document.getElementById('emojiModal'));
+  const emojiBtn = document.getElementById('emojiBtn');
+
+  // ==== Helpers ====
+  let lastId = {{ messages[-1].id if messages|length else 0 }};
+  function scrollToBottom(){ window.scrollTo({top: document.body.scrollHeight, behavior:'smooth'}); }
+  function bubbleHTML(m, me){
+    let h = `<div class="bubble ${me?'me':'other'}">`;
+    if (m.attachment && (m.attachment.type==='image' || m.attachment.type==='gif')){
+      h += `<a class="img-wrap mb-2" target="_blank" href="${m.attachment.url}">
+              <img src="${m.attachment.thumb||m.attachment.url}" alt="">
+            </a>`;
+    }
+    if (m.body){ h += `<div class="mb-1">${m.body}</div>`; }
+    h += `<div class="d-flex align-items-center justify-content-${me?'end':'start'}">
+            <time>${m.created_human||''}</time>${me?'<span class="ticks">✓</span>':''}
+          </div></div>`;
+    return h;
+  }
+  function appendMessage(m, me){
+    lastId = Math.max(lastId, m.id||0);
+    listEl.insertAdjacentHTML('beforeend', bubbleHTML(m, me));
+    scrollToBottom();
+  }
+  function showPreview(file){ const url = URL.createObjectURL(file); prevImg.src = url; prevBox.classList.add('show'); }
+  function clearPreview(){ fileIn.value=''; prevBox.classList.remove('show'); prevImg.removeAttribute('src'); }
+
+  // ==== Send ====
+  async function sendForm(fileFromPicker=null){
+    const body = (inputEl.value||'').trim();
+    const file = fileFromPicker || (fileIn.files && fileIn.files[0]) || null;
+    if (!body && !file){ inputEl.focus(); return; }
+    const fd = new FormData();
+    fd.append('thread_id', THREAD_ID);
+    if (body) fd.append('body', body);
+    if (file) fd.append('file', file);
+
+    const r = await fetch(SEND_URL, { method:'POST', body: fd });
+    const data = await r.json();
+    if (r.ok && data.ok){
+      appendMessage(data.message, true);
+      inputEl.value=''; clearPreview();
+    }
+  }
+  sendBtn.addEventListener('click', ()=> sendForm());
+
+  // ==== Typing ping ====
+  let typingTimer=null;
+  inputEl.addEventListener('input', ()=>{
+    if (typingTimer) return;
+    typingTimer=setTimeout(async ()=>{
+      typingTimer=null;
+      const fd=new FormData(); fd.append('thread_id', THREAD_ID);
+      try{ await fetch(TYPING_SET_URL,{method:'POST',body:fd}); }catch(e){}
+    }, 450);
+  });
+
+  // ==== Polling ====
+  async function poll(){
+    try{
+      const url = new URL(FETCH_URL, location.origin);
+      url.searchParams.set('thread_id', THREAD_ID);
+      url.searchParams.set('after_id', lastId);
+      const r = await fetch(url);
+      const d = await r.json();
+      if (!r.ok || !d.ok) return;
+      (d.messages||[]).forEach(m=>{
+        appendMessage(m, m.sender.username === "{{ current_user.username }}");
+      });
+    }catch(e){}
+  }
+  setInterval(poll, 2500);
+
+  // ==== Image attach ====
+  pickBtn.addEventListener('click', ()=> fileIn.click());
+  fileIn.addEventListener('change', ()=>{ if (fileIn.files && fileIn.files[0]) showPreview(fileIn.files[0]); else clearPreview(); });
+  prevClr.addEventListener('click', clearPreview);
+
+  // ==== Paste image / drag & drop ====
+  window.addEventListener('paste', (e)=>{
+    const items = e.clipboardData?.items || [];
+    for (const it of items){
+      if (it.kind === 'file'){
+        const f = it.getAsFile();
+        if (f && f.type.startsWith('image/')){ showPreview(f); const dt=new DataTransfer(); dt.items.add(f); fileIn.files=dt.files; }
+      }
+    }
+  });
+  ;['dragenter','dragover'].forEach(ev=>{
+    dropZone.addEventListener(ev, e=>{ e.preventDefault(); dropZone.classList.add('border','border-info'); });
+  });
+  ;['dragleave','drop'].forEach(ev=>{
+    dropZone.addEventListener(ev, e=>{ e.preventDefault(); dropZone.classList.remove('border','border-info'); });
+  });
+  dropZone.addEventListener('drop', e=>{
+    const file = e.dataTransfer?.files?.[0];
+    if (file && file.type.startsWith('image/')){
+      const dt = new DataTransfer(); dt.items.add(file); fileIn.files = dt.files; showPreview(file);
+    }
+  });
+
+  // ==================== GIPHY عبر الـproxy ====================
+  function giphyImgPair(obj){
+    const images = obj.images || {};
+    const thumb = images.fixed_width_small?.url || images.fixed_height_small?.url || images.preview_gif?.url || images.fixed_width?.url;
+    const full  = images.original?.url || images.fixed_width?.url || images.downsized?.url;
+    return {thumb, full};
+  }
+  async function loadGiphy(endpoint){
+    gifLoading.classList.remove('d-none');
+    gifEmpty.classList.add('d-none');
+    gifGrid.innerHTML = '';
+    try{
+      const r = await fetch(endpoint);
+      const d = await r.json();
+      const results = d.data || [];
+      if (!results.length){ gifEmpty.classList.remove('d-none'); return; }
+      results.forEach(g=>{
+        const pair = giphyImgPair(g);
+        if (!pair.full) return;
+        const card = document.createElement('div');
+        card.className = 'gif-item';
+        card.innerHTML = `<img loading="lazy" src="${pair.thumb || pair.full}" alt="gif">`;
+        card.addEventListener('click', async ()=>{
+          try{
+            const res = await fetch(pair.full);
+            const blob = await res.blob(); // gif/webp
+            const ext = blob.type.includes('webp') ? 'webp' : 'gif';
+            const file = new File([blob], `giphy.${ext}`, {type: blob.type || `image/${ext}`});
+            await sendForm(file);
+            bootstrap.Modal.getInstance(gifModalEl).hide();
+          }catch(e){}
+        });
+        gifGrid.appendChild(card);
+      });
+    }catch(e){
+      gifEmpty.classList.remove('d-none');
+    }finally{
+      gifLoading.classList.add('d-none');
+    }
+  }
+  function loadTrendingGifs(limit=18){
+    const u = new URL(GIPHY_TREND_URL, location.origin);
+    u.searchParams.set('limit', limit);
+    loadGiphy(u);
+  }
+  function searchGifs(q, limit=18){
+    const u = new URL(GIPHY_SEARCH_URL, location.origin);
+    u.searchParams.set('q', q);
+    u.searchParams.set('limit', limit);
+    loadGiphy(u);
+  }
+  document.getElementById('openGifBtn').addEventListener('click', ()=>{ loadTrendingGifs(); gifModal.show(); });
+  gifSearchBtn.addEventListener('click', (e)=>{ e.preventDefault(); const q=gifSearch.value.trim(); if(q) searchGifs(q); else loadTrendingGifs(); });
+
+  // ==================== Emoji Picker ====================
+  emojiBtn.addEventListener('click', ()=> emojiModal.show());
+  document.querySelector('#emojiModal emoji-picker').addEventListener('emoji-click', (e)=>{
+    const emoji = e.detail.unicode;
+    const start = inputEl.selectionStart || inputEl.value.length;
+    const end   = inputEl.selectionEnd   || inputEl.value.length;
+    inputEl.value = inputEl.value.slice(0,start) + emoji + inputEl.value.slice(end);
+    inputEl.focus();
+    const pos = start + emoji.length;
+    inputEl.setSelectionRange(pos, pos);
+  });
+
+  // أول تحميل
+  scrollToBottom();
+</script>
+</body>
+</html>

@@ -1,0 +1,407 @@
+{% extends "base.html" %}
+{% block title %}ارفع صورة{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-9">
+      <div class="card card-glass glass-strong shadow-lg border-0">
+        <div class="card-body p-4 p-md-5 text-contrast">
+
+          <div class="d-flex align-items-center justify-content-between mb-4">
+            <h2 class="m-0 fw-bold text-glow-weak">
+              <i class="bi bi-cloud-upload me-2"></i> ارفع صورة
+            </h2>
+            <a href="{{ url_for('home') }}" class="btn btn-outline-light rounded-3">
+              <i class="bi bi-house"></i> الرئيسية
+            </a>
+          </div>
+
+          <!-- رسائل فلاش -->
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              <div class="mb-3">
+                {% for category, msg in messages %}
+                  <div class="alert alert-{{ 'warning' if category=='message' else category }} glass-strong border-0 text-contrast" role="alert">
+                    {{ msg }}
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+          {% endwith %}
+
+          <form id="uploadForm" method="post" action="{{ url_for('upload') }}" enctype="multipart/form-data" class="needs-validation" novalidate>
+
+            <!-- منطقة الرفع (سحب/إفلات) -->
+            <div class="mb-4">
+              <label class="form-label text-light-80">الصور</label>
+
+              <div id="dropzone" class="glass-dropzone rounded-4 p-4 text-center">
+                <div class="mb-3">
+                  <i class="bi bi-cloud-arrow-up display-5 d-block mb-2 text-warning"></i>
+                  <div class="fw-semibold text-contrast">اسحب الصور هنا أو</div>
+                </div>
+
+                <div class="d-flex justify-content-center">
+                  <label class="btn btn-outline-light btn-glass rounded-3 px-4 m-0">
+                    <i class="bi bi-folder2-open me-1"></i> اختيار الملفات
+                    <input id="photos" name="photos" type="file" accept="image/*" multiple class="d-none">
+                  </label>
+                </div>
+
+                <div class="small text-light-70 mt-3">حد أقصى 10 صور • PNG / JPG / JPEG / GIF / WEBP • حد الرفع: <span class="text-warning">25MB</span></div>
+              </div>
+
+              <!-- معلومات العدد والحجم -->
+              <div class="d-flex align-items-center justify-content-between mt-3">
+                <div class="badge bg-dark text-warning rounded-pill px-3 py-2">
+                  <i class="bi bi-images me-1"></i> عدد الصور: <span id="count">0</span> / 10
+                </div>
+                <div class="badge bg-dark text-light rounded-pill px-3 py-2">
+                  <i class="bi bi-hdd-network me-1"></i> الحجم الإجمالي: <span id="totalSize">0.00 MB</span> / 25.00 MB
+                </div>
+              </div>
+
+              <!-- قائمة الملفات المختارة + المعاينة -->
+              <div id="preview" class="row g-3 mt-3"></div>
+            </div>
+
+            <!-- الوصف -->
+            <div class="mb-4">
+              <label class="form-label text-light-80" for="caption">الوصف</label>
+              <textarea id="caption" name="caption" rows="3"
+                        class="form-control form-control-lg glass-input text-contrast"
+                        placeholder="اكتب وصفاً لطيفاً..."></textarea>
+            </div>
+
+            <!-- الوسوم -->
+            <div class="mb-4">
+              <label class="form-label text-light-80" for="tags">الوسوم</label>
+              <input id="tags" name="tags" type="text"
+                     class="form-control form-control-lg glass-input text-contrast"
+                     placeholder="مثال: طبيعة، فن، بورتريه">
+              <div class="form-text text-light-70">استخدم الفاصلة (،) بين الوسوم.</div>
+            </div>
+
+            <!-- الخيارات -->
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="form-switch glass-switch d-flex align-items-center justify-content-between p-3 rounded-3">
+                  <label class="form-check-label mb-0 text-contrast" for="allow_comments">السماح بالتعليقات</label>
+                  <input class="form-check-input" type="checkbox" role="switch" id="allow_comments" name="allow_comments" checked>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-switch glass-switch d-flex align-items-center justify-content-between p-3 rounded-3">
+                  <label class="form-check-label mb-0 text-contrast" for="allow_share">السماح بالمشاركة</label>
+                  <input class="form-check-input" type="checkbox" role="switch" id="allow_share" name="allow_share" checked>
+                </div>
+              </div>
+            </div>
+
+            <!-- الرفع السريع + شريط التقدم -->
+            <div class="mb-4">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="useAjax" checked>
+                <label class="form-check-label text-contrast" for="useAjax">استخدام الرفع السريع (AJAX)</label>
+              </div>
+            </div>
+
+            <div id="progressWrap" class="mb-4 d-none">
+              <label class="form-label text-light-80">التقدم</label>
+              <div class="progress glass-progress rounded-3" style="height: 14px;">
+                <div id="progressBar" class="progress-bar bg-warning text-dark fw-semibold" style="width:0%">0%</div>
+              </div>
+              <div class="d-flex justify-content-between mt-2 small text-light-70">
+                <span id="progressText">جاهز للرفع…</span>
+                <button type="button" id="cancelBtn" class="btn btn-sm btn-outline-light btn-glass rounded-3">
+                  <i class="bi bi-x-lg"></i> إلغاء الرفع
+                </button>
+              </div>
+            </div>
+
+            <!-- الأزرار -->
+            <div class="d-flex gap-3">
+              <button type="submit" id="submitBtn" class="btn btn-warning text-dark px-4 rounded-3">
+                <i class="bi bi-check2-circle me-1"></i> نشر
+              </button>
+              <a href="{{ url_for('home') }}" class="btn btn-glass btn-contrast px-4 rounded-3">
+                <i class="bi bi-x-lg me-1"></i> إلغاء
+              </a>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- تحسينات CSS -->
+<style>
+  .text-contrast{color:rgba(255,255,255,.92)}
+  .text-light-80{color:rgba(255,255,255,.80)}
+  .text-light-70{color:rgba(255,255,255,.70)}
+  .glass-dropzone{
+    border:1px solid rgba(255,255,255,.12);
+    background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    transition: border-color .2s, box-shadow .2s, transform .15s;
+  }
+  .glass-dropzone.dragover{
+    border-color: rgba(255, 193, 7, .5);
+    box-shadow: 0 0 0 .25rem rgba(255, 193, 7, .15);
+    transform: translateY(-2px);
+  }
+  .glass-input{
+    border:1px solid rgba(255,255,255,.12);
+    background:rgba(255,255,255,.04);
+    color:#fff;
+  }
+  .glass-input:focus{border-color:rgba(255,193,7,.5); box-shadow:0 0 0 .25rem rgba(255,193,7,.15); color:#fff}
+  .glass-switch{
+    border:1px solid rgba(255,255,255,.08);
+    background:rgba(255,255,255,.04);
+    backdrop-filter: blur(8px);
+  }
+  .btn-glass{
+    border:1px solid rgba(255,255,255,.18)!important;
+    background:rgba(255,255,255,.06)!important;
+    color:#fff!important;
+    backdrop-filter: blur(10px);
+  }
+  .btn-contrast{color:#fff!important}
+  .thumb{
+    position:relative; overflow:hidden;
+    border-radius:16px; border:1px solid rgba(255,255,255,.08);
+    background:rgba(255,255,255,.04);
+  }
+  .thumb img{width:100%; height:160px; object-fit:cover; display:block}
+  .thumb .badge{
+    position:absolute; top:.5rem; left:.5rem; backdrop-filter:blur(6px);
+  }
+  .thumb .remove{
+    position:absolute; right:.5rem; top:.5rem;
+  }
+  .glass-progress{
+    background: rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.12);
+    backdrop-filter: blur(8px);
+  }
+</style>
+
+<!-- JS: إدارة الملفات + معاينة + قيود + رفع AJAX مع التقدم -->
+<script>
+(function(){
+  'use strict';
+  // حدود
+  const MAX_FILES = 10;
+  const MAX_TOTAL_MB = 25;
+
+  // عناصر
+  const form   = document.getElementById('uploadForm');
+  const input  = document.getElementById('photos');
+  const drop   = document.getElementById('dropzone');
+  const grid   = document.getElementById('preview');
+  const count  = document.getElementById('count');
+  const sizeEl = document.getElementById('totalSize');
+  const useAjax = document.getElementById('useAjax');
+  const progressWrap = document.getElementById('progressWrap');
+  const progressBar  = document.getElementById('progressBar');
+  const progressText = document.getElementById('progressText');
+  const cancelBtn    = document.getElementById('cancelBtn');
+  const submitBtn    = document.getElementById('submitBtn');
+
+  let xhr = null; // للغاء الرفع
+
+  // منع السلوك الافتراضي للسحب/الإفلات على الصفحة
+  ['dragenter','dragover','dragleave','drop'].forEach(evt => {
+    document.addEventListener(evt, e => { e.preventDefault(); e.stopPropagation(); }, false);
+  });
+
+  // إبراز منطقة الإفلات
+  ['dragenter','dragover'].forEach(evt => {
+    drop.addEventListener(evt, () => drop.classList.add('dragover'), false);
+  });
+  ;['dragleave','drop'].forEach(evt => {
+    drop.addEventListener(evt, () => drop.classList.remove('dragover'), false);
+  });
+
+  // إفلات ملفات
+  drop.addEventListener('drop', (e) => {
+    const files = Array.from(e.dataTransfer.files || []);
+    if (!files.length) return;
+    addFiles(files);
+  });
+
+  // اختيار من المتصفح
+  input.addEventListener('change', (e) => {
+    addFiles(Array.from(e.target.files || []));
+  });
+
+  // إضافة ملفات إلى input مع الحفاظ على القديمة (حتى 10)
+  function addFiles(newFiles){
+    const current = Array.from(input.files || []);
+    const all = current.concat(newFiles).slice(0, MAX_FILES);
+    setFileList(all);
+    renderPreviews();
+    updateStats();
+  }
+
+  // إنشاء FileList جديدة عبر DataTransfer
+  function setFileList(filesArray){
+    const dt = new DataTransfer();
+    filesArray.forEach(f => dt.items.add(f));
+    input.files = dt.files;
+  }
+
+  // إزالة ملف حسب الفهرس
+  function removeAt(index){
+    const arr = Array.from(input.files || []);
+    arr.splice(index,1);
+    setFileList(arr);
+    renderPreviews();
+    updateStats();
+  }
+
+  // رسم المعاينات
+  function renderPreviews(){
+    grid.innerHTML = '';
+    const files = Array.from(input.files || []);
+    files.forEach((f, idx) => {
+      if(!f.type.startsWith('image/')) return;
+      const col = document.createElement('div');
+      col.className = 'col-6 col-md-4 col-lg-3';
+
+      const wrap = document.createElement('div');
+      wrap.className = 'thumb';
+
+      const badge = document.createElement('span');
+      badge.className = 'badge bg-dark text-warning';
+      badge.innerHTML = '<i class="bi bi-image me-1"></i>' + (idx+1);
+
+      const close = document.createElement('button');
+      close.type = 'button';
+      close.className = 'btn btn-sm btn-outline-light btn-glass rounded-pill remove';
+      close.innerHTML = '<i class="bi bi-x-lg"></i>';
+      close.addEventListener('click', () => removeAt(idx));
+
+      const img = document.createElement('img');
+      const reader = new FileReader();
+      reader.onload = e => img.src = e.target.result;
+      reader.readAsDataURL(f);
+
+      wrap.appendChild(img);
+      wrap.appendChild(badge);
+      wrap.appendChild(close);
+      col.appendChild(wrap);
+      grid.appendChild(col);
+    });
+  }
+
+  // تحديث العدد والحجم + تحذيرات
+  function updateStats(){
+    const files = Array.from(input.files || []);
+    const totalBytes = files.reduce((s,f)=>s+f.size,0);
+    const totalMB = totalBytes / (1024*1024);
+    count.textContent = files.length;
+    sizeEl.textContent = totalMB.toFixed(2) + ' MB';
+
+    // ضبط لون الحجم عند الاقتراب/التجاوز
+    const limit = MAX_TOTAL_MB;
+    if (totalMB > limit){
+      sizeEl.parentElement.classList.remove('bg-dark','text-light');
+      sizeEl.parentElement.classList.add('bg-danger','text-white');
+    } else if (totalMB > limit*0.8){
+      sizeEl.parentElement.classList.remove('bg-dark','text-light','bg-danger','text-white');
+      sizeEl.parentElement.classList.add('bg-warning','text-dark');
+    } else {
+      sizeEl.parentElement.classList.remove('bg-warning','text-dark','bg-danger','text-white');
+      sizeEl.parentElement.classList.add('bg-dark','text-light');
+    }
+  }
+
+  // تحقق Bootstrap
+  const forms = document.querySelectorAll('.needs-validation');
+  Array.prototype.slice.call(forms).forEach(function(formEl){
+    formEl.addEventListener('submit', function (event) {
+      if (!formEl.checkValidity()) { event.preventDefault(); event.stopPropagation(); }
+      formEl.classList.add('was-validated');
+    }, false);
+  });
+
+  // رفع AJAX مع تقدم
+  form.addEventListener('submit', function(e){
+    const files = Array.from(input.files || []);
+    const totalMB = files.reduce((s,f)=>s+f.size,0) / (1024*1024);
+    if (files.length === 0){
+      // دع التحقق يمنع
+      return;
+    }
+    if (files.length > MAX_FILES){
+      e.preventDefault();
+      alert('يمكنك رفع 10 صور كحد أقصى.');
+      return;
+    }
+    if (totalMB > MAX_TOTAL_MB){
+      e.preventDefault();
+      alert('تجاوزت حد الحجم المسموح (25MB).');
+      return;
+    }
+
+    // إذا كان الرفع السريع مُفعل
+    if (useAjax.checked){
+      e.preventDefault();
+      progressWrap.classList.remove('d-none');
+      submitBtn.disabled = true;
+
+      const fd = new FormData();
+      files.forEach(f => fd.append('photos', f));
+      fd.append('caption', document.getElementById('caption').value || '');
+      fd.append('tags', document.getElementById('tags').value || '');
+      if (document.getElementById('allow_comments').checked) fd.append('allow_comments','on');
+      if (document.getElementById('allow_share').checked) fd.append('allow_share','on');
+
+      xhr = new XMLHttpRequest();
+      xhr.open('POST', form.action, true);
+
+      xhr.upload.onprogress = function(ev){
+        if (!ev.lengthComputable) return;
+        const percent = Math.min(100, Math.round(ev.loaded * 100 / ev.total));
+        progressBar.style.width = percent + '%';
+        progressBar.textContent = percent + '%';
+        progressText.textContent = 'جارِ الرفع… (' + percent + '%)';
+      };
+
+      xhr.onreadystatechange = function(){
+        if (xhr.readyState === 4){
+          submitBtn.disabled = false;
+          if (xhr.status >= 200 && xhr.status < 300){
+            progressText.textContent = 'تم الرفع بنجاح. تحويل…';
+            // بعد نجاح الحفظ في السيرفر، نوجّه إلى الصفحة الرئيسية
+            window.location.href = "{{ url_for('home') }}";
+          } else {
+            progressText.textContent = 'حدث خطأ أثناء الرفع.';
+            alert('تعذر رفع الصور. تأكد من الصيغ والاتصال.');
+          }
+        }
+      };
+
+      xhr.send(fd);
+    }
+  });
+
+  // إلغاء الرفع
+  cancelBtn.addEventListener('click', function(){
+    if (xhr){
+      xhr.abort();
+      progressText.textContent = 'تم إلغاء الرفع.';
+      submitBtn.disabled = false;
+    }
+  });
+
+  // تهيئة أولية
+  updateStats();
+})();
+</script>
+{% endblock %}

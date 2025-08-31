@@ -1,0 +1,45 @@
+<!-- Bootstrap Bundle + tiny helpers -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+<script src="{{ url_for('static', filename='js/comments.js') }}"></script>
+<script>
+document.addEventListener('click', async (e)=>{
+  const b = e.target.closest('[data-like]');
+  if(b){
+    e.preventDefault();
+    const pid = b.dataset.like;
+    const r = await fetch(`/post/${pid}/like`, {method:'POST'});
+    const js = await r.json();
+    if(js.ok){
+      b.classList.toggle('btn-gold', js.liked);
+      b.querySelector('[data-like-count]').textContent = js.count;
+    }
+  }
+  const s = e.target.closest('[data-save]');
+  if(s){
+    e.preventDefault();
+    const pid = s.dataset.save;
+    const r = await fetch(`/post/${pid}/bookmark`, {method:'POST'});
+    const js = await r.json();
+    if(js.ok){ s.classList.toggle('btn-gold', js.saved); }
+  }
+  const f = e.target.closest('[data-follow]');
+  if(f){
+    e.preventDefault();
+    const u = f.dataset.follow;
+    const r = await fetch(`/follow/${u}`, {method:'POST'});
+    const js = await r.json();
+    if(js.ok){ f.classList.toggle('btn-gold', js.on); f.textContent = js.on ? 'متابَع' : 'متابعة'; }
+  }
+});
+
+function lpSubmitComment(form, pid){
+  const fd = new FormData(form);
+  fetch(`/post/${pid}/comment`, {method:'POST', body:fd})
+    .then(r=>r.json()).then(js=>{
+      if(js.ok){ location.reload(); }
+      else alert(js.msg || 'خطأ');
+    });
+  return false;
+}
+</script>

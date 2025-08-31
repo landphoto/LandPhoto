@@ -1,0 +1,20 @@
+<div class="container py-4">
+  <div class="card bg-dark text-light shadow-lg rounded-4 border-0">
+    <div class="card-body text-center">
+      <div class="position-relative d-inline-block">
+        <img src="{{ url_for('static', filename='uploads/' + current_user.avatar) if current_user.avatar else url_for('static','default-avatar.png') }}"
+             alt="الصورة الشخصية"
+             class="rounded-circle border border-3 border-warning shadow-lg"
+             style="width:130px; height:130px; object-fit:cover;">
+      </div>
+      <h3 class="mt-3 fw-bold text-warning">@{{ current_user.username }}</h3>
+      {% if current_user.bio %}
+        <p class="text-white-50 mb-1">{{ current_user.bio }}</p>
+      {% endif %}
+      <div class="d-flex justify-content-center gap-3 mt-3">
+        <a href="{{ url_for('settings') }}" class="btn btn-warning fw-bold px-4 rounded-pill">⚙️ إعدادات الحساب</a>
+        <a href="{{ url_for('home') }}" class="btn btn-outline-light px-4 rounded-pill">↩️ الرجوع</a>
+      </div>
+    </div>
+  </div>
+</div>

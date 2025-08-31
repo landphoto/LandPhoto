@@ -1,0 +1,412 @@
+:root{
+  --glass-bg: rgba(255,255,255,0.06);
+  --glass-bg-strong: rgba(14,14,18,0.7);
+  --glass-stroke: rgba(255,255,255,0.12);
+  --glass-shadow: 0 10px 30px rgba(0,0,0,.35);
+  --radius: 1.25rem;
+
+  /* ألوان أزرار */
+  --like:#ff5a7a;
+  --save:#13c2c2;
+  --primary:#ffc107;
+  --danger:#e55353;
+  --success:#00c853;
+  --secondary:#7aa2ff;
+}
+html,body{background:#0e0e12;color:#e7e7ea;font-family:"Tajawal",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans",Arial;}
+.bg-dark-true{background:#0e0e12;}
+.navbar.glass-top{background:linear-gradient(180deg, rgba(8,8,10,.8), rgba(8,8,10,.35)); backdrop-filter: blur(10px);}
+
+.glass{background:var(--glass-bg); border:1px solid var(--glass-stroke); backdrop-filter: blur(12px); box-shadow:var(--glass-shadow); color:#e7e7ea; border-radius: var(--radius);}
+.glass-weak{background:rgba(255,255,255,.03); border:1px dashed rgba(255,255,255,.12);}
+.glass-strong{background:var(--glass-bg-strong); border:1px solid var(--glass-stroke); backdrop-filter: blur(18px);}
+
+.btn.glass{--bs-btn-bg:transparent; --bs-btn-border-color:transparent; color:#e7e7ea;}
+.btn-icon{width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border-radius:14px;}
+.btn.glass-primary{background:rgba(255,193,7,.15);border:1px solid rgba(255,193,7,.35); color:#ffd65b;}
+.btn.glass-secondary{background:rgba(122,162,255,.12); border:1px solid rgba(122,162,255,.35); color:#a8c0ff;}
+.btn.glass-success{background:rgba(0,200,83,.12); border:1px solid rgba(0,200,83,.35); color:#66ffa6;}
+.btn.glass-danger{background:rgba(229,83,83,.12); border:1px solid rgba(229,83,83,.35); color:#ff9b9b;}
+.btn.glass-like{background:rgba(255,90,122,.1); border:1px solid rgba(255,90,122,.35); color:#ff9db1;}
+.btn.glass-save{background:rgba(19,194,194,.12); border:1px solid rgba(19,194,194,.35); color:#7eecec;}
+
+.glass-input{background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.18)!important;color:#fff!important;}
+.glass-input::placeholder{color:#bdbdc2;}
+.glass-badge{background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.18); color:#ffd65b; padding:.35rem .7rem; border-radius:999px; display:inline-flex; align-items:center; gap:.35rem;}
+
+.post-card .post-image{width:100%;display:block;object-fit:cover;border-radius:16px;}
+.glass-row{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);}
+
+.emoji-bar{display:flex;gap:.35rem}
+.emoji-btn{border:none;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:.25rem .5rem;cursor:pointer}
+.emoji-btn:hover{background:rgba(255,255,255,.12)}
+.emoji-chip{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:.1rem .5rem;margin-inline-end:.25rem}
+
+/* ===== تعليقات زجاجية احترافية ===== */
+.glass-comments{
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.04));
+  border:1px solid rgba(255,255,255,.14);
+  border-radius: 1rem;
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+}
+.comment-item{
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:.8rem;
+  backdrop-filter: blur(8px);
+}
+.avatar-xs{
+  width:36px;height:36px;border-radius:50%;object-fit:cover;
+  box-shadow:0 4px 14px rgba(0,0,0,.25);
+}
+.comment-text{ color:rgba(255,255,255,.92) }
+
+.time-badge{
+  padding:.15rem .4rem;border-radius:.5rem;font-size:.72rem;
+  color:rgba(255,255,255,.72);
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);
+}
+
+/* قلب الإعجاب */
+.heart-btn{ background:transparent;border:0;line-height:1;padding:.15rem .2rem;cursor:pointer }
+.heart-btn i{ font-size:1.1rem;color:rgba(255,255,255,.8);transition:color .12s ease, transform .12s ease }
+.heart-btn:hover i{ transform:scale(1.12) }
+.heart-btn.on i, .heart-btn i.bi-heart-fill{ color:#ff4757 } /* أحمر عند الإعجاب */
+.like-count{ color:rgba(255,255,255,.8) }
+
+/* إدخال وزر إرسال */
+.glass-input{
+  background:rgba(255,255,255,.06); color:#fff; border-radius:12px;
+  border:1px solid rgba(255,255,255,.14); backdrop-filter: blur(10px);
+}
+.glass-input::placeholder{ color:rgba(255,255,255,.55) }
+
+.send-btn{
+  border:0;width:56px;height:44px;border-radius:14px;display:grid;place-items:center;
+  background:linear-gradient(180deg,#ffd54d,#ffb300); color:#111;
+  box-shadow:0 10px 24px rgba(255,179,0,.25), inset 0 1px 0 #fff6d5;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.send-btn:hover{ transform:translateY(-1px); box-shadow:0 12px 28px rgba(255,179,0,.35), inset 0 1px 0 #fff6d5; }
+.send-btn:active{ transform:translateY(0) scale(.98) }
+
+/* ===== بطاقات المنشورات الزجاجية + صورة ثابتة الأبعاد ===== */
+.lp-card{
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.04));
+  border:1px solid rgba(255,255,255,.14);
+  border-radius: 1rem;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 14px 30px rgba(0,0,0,.28);
+  overflow: hidden; /* يمنع أي خروج لمحتوى الصورة */
+}
+
+/* الصورة داخل الكرت */
+.lp-card .lp-photo{
+  display:block;
+  width:100%;
+  border-radius: .8rem;
+  /* ثبّت شكل الصورة داخل الإطار */
+  aspect-ratio: 16 / 9;          /* شكل موحّد أنيق */
+  object-fit: cover;              /* تقص من الأطراف بدل ما تتمدد */
+  object-position: center;
+  background:#0e1220;            /* لون خلفية لو الصورة تتأخر بالتحميل */
+  border:1px solid rgba(255,255,255,.10);
+}
+
+/* هوامش داخل الكرت حتى ما تلزك الصورة بالحواف */
+.lp-card .lp-photo.mb-3{ margin-bottom: .9rem !important; }
+
+/* تحسين شارة وعدّاد تحت الصورة */
+.lp-card .badge{
+  background:rgba(255,255,255,.08) !important;
+  border:1px solid rgba(255,255,255,.14);
+  backdrop-filter: blur(8px);
+}
+
+/* الروابط/الأزرار أسفل الكرت */
+.lp-actions .btn-glass,
+.lp-actions .btn-gold{
+  border-radius:.8rem;
+}
+
+/* ===== شبكة الصور (Grid) ===== */
+.feed-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.2rem;
+}
+
+/* كارت منشور شبكي */
+.lp-card {
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.04));
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 1rem;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 12px 28px rgba(0,0,0,.28);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* الصورة داخل الشبكة */
+.lp-card .lp-photo {
+  width: 100%;
+  aspect-ratio: 1 / 1;   /* مربّع */
+  object-fit: cover;
+  border-bottom: 1px solid rgba(255,255,255,.12);
+  background: #0e1220;
+}
+
+/* محتوى الكرت تحت الصورة */
+.lp-card .lp-body {
+  flex-grow: 1;
+  padding: .9rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* عنوان/كابشن */
+.lp-card .lp-caption {
+  font-size: .95rem;
+  color: rgba(255,255,255,.92);
+  margin-bottom: .5rem;
+}
+
+/* أزرار الأكشن تحت */
+.lp-card .lp-actions {
+  margin-top: auto;
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+/* === Fix: إزالة خط تحت الروابط الزجاجية === */
+.nav-glass-btn,
+.nav-glass-btn:hover,
+.nav-glass-btn:focus {
+  text-decoration: none !important;
+}
+
+/* === Feed على أسلوب إنستغرام (صورة مربّعة داخل الكارت) === */
+.lp-card {
+  overflow: hidden;
+  border-radius: 1rem;
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.04));
+  border: 1px solid rgba(255,255,255,.14);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 12px 28px rgba(0,0,0,.28);
+}
+
+/* الصورة داخل المنشور تكون مربّع مقصوص (crop) مثل إنستغرام */
+.lp-photo {
+  width: 100%;
+  display: block;
+  aspect-ratio: 1 / 1;     /* مربّع */
+  object-fit: cover;        /* قصّ من الأطراف للحفاظ على المركز */
+  background: #0e1220;      /* لون خلفية لو الصورة لسه ما اتحملت */
+  border-bottom: 1px solid rgba(255,255,255,.12);
+}
+
+/* جسم الكارت تحت الصورة */
+.lp-body {
+  padding: .9rem;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+/* ترتيب أزرار الأكشن */
+.lp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-top: .25rem;
+}
+
+/* (اختياري) شبكة استكشاف تشبه بروفايل إنستغرام — 3 أعمدة موبايل / تتوسّع */
+.feed-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.feed-grid .lp-card { border-radius: 8px; box-shadow: none; border:0; background: none; }
+.feed-grid .lp-photo { aspect-ratio: 1/1; border-bottom: 0; }
+
+/* ===== شبكة المنشورات (feed-grid) ===== */
+.feed-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* موبايل: عمود واحد */
+  gap: 1.5rem;
+}
+
+/* للشاشات الأكبر من 768px */
+@media (min-width: 768px) {
+  .feed-grid {
+    grid-template-columns: repeat(2, 1fr); /* عمودين */
+  }
+}
+
+/* للشاشات الأكبر من 1200px */
+@media (min-width: 1200px) {
+  .feed-grid {
+    grid-template-columns: repeat(3, 1fr); /* 3 أعمدة */
+  }
+}
+
+/* تصميم الكارت */
+.feed-grid .lp-card {
+  border-radius: 1rem;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 26px rgba(0,0,0,.35);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.feed-grid .lp-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0,0,0,.45);
+}
+
+/* الصور داخل البوست */
+.feed-grid .lp-photo {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+}
+
+/* ===== تعليقات زجاجية (Bootstrap 5) ===== */
+.glass-comments{
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.04));
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 1rem;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.comment-item{
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: .8rem;
+  backdrop-filter: blur(8px);
+}
+.avatar-xs{
+  width:36px;height:36px;border-radius:50%;object-fit:cover;
+  box-shadow:0 4px 14px rgba(0,0,0,.25);
+}
+.comment-text{ color:rgba(255,255,255,.92) }
+.time-badge{
+  padding:.15rem .45rem;border-radius:.5rem;font-size:.72rem;
+  color:rgba(255,255,255,.72);
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);
+}
+
+/* حقل الإدخال وزر الإرسال */
+.glass-input{
+  background: rgba(255,255,255,.06);
+  color:#fff;
+  border-radius: 14px;
+  border:1px solid rgba(255,255,255,.14);
+  backdrop-filter: blur(10px);
+}
+.glass-input::placeholder{ color:rgba(255,255,255,.55); }
+
+.send-btn{
+  border:0;width:56px;height:44px;border-radius:14px;display:grid;place-items:center;
+  background:linear-gradient(180deg,#ffd54d,#ffb300); color:#111;
+  box-shadow:0 10px 24px rgba(255,179,0,.25), inset 0 1px 0 #fff6d5;
+  transition: transform .12s ease, box-shadow .12s ease;
+  margin-inline-end:.5rem;
+}
+.send-btn:hover{ transform:translateY(-1px); box-shadow:0 12px 28px rgba(255,179,0,.35), inset 0 1px 0 #fff6d5; }
+.send-btn:active{ transform:translateY(0) scale(.98) }
+
+/* فقاعة تحذير زجاجية للحقل الفارغ */
+.glass-tip{
+  display: none;
+  position: absolute;
+  inset-inline-start: 0.75rem;   /* محاذاة RTL */
+  bottom: 100%;
+  transform: translateY(-6px);
+  padding: .35rem .55rem;
+  border-radius: .6rem;
+  background: rgba(30,34,48,.9);
+  color: #ffd54d;
+  border: 1px solid rgba(255,255,255,.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: .85rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,.35);
+  z-index: 10;
+  white-space: nowrap;
+}
+.glass-tip.show{ display:block; animation: tipFade .18s ease-out }
+@keyframes tipFade { from{ opacity:.2; transform: translateY(-10px) } to{ opacity:1; transform: translateY(-6px) } }
+
+/* زر إعجاب التعليق (شفاف) */
+.c-like{ background:transparent;border:0; padding:.15rem .25rem; line-height:1; color:rgba(255,255,255,.85); }
+.c-like .bi-heart-fill{ color:#ff4757; }
+.c-like:focus{ outline:0; box-shadow:none; }
+
+/* مودال زجاجي أنيق */
+.glass-modal{
+  background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.05));
+  border: 1px solid rgba(255,255,255,.14);
+  color: #fff;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 1rem;
+  box-shadow: 0 20px 60px rgba(0,0,0,.45);
+}
+.glass-modal .modal-header,
+.glass-modal .modal-footer{
+  border-color: rgba(255,255,255,.12) !important;
+}
+.btn-glass{
+  color:#fff;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.16);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.btn-glass:hover{ background: rgba(255,255,255,.12); }
+
+/* ===== Chat bubbles (زجاجي) ===== */
+.chat-body{
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: .5rem;
+}
+.chat-row{ display:flex; margin:.35rem 0; }
+.chat-row.me{ justify-content: flex-start; }      /* RTL: فقاعتي على اليسار */
+.chat-row.other{ justify-content: flex-end; }     /* وفقاعة الطرف الآخر على اليمين */
+
+.chat-bubble{
+  position: relative;
+  max-width: 85%;
+  padding: .6rem .75rem .35rem;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.06));
+  border: 1px solid rgba(255,255,255,.16);
+  color: #fff;
+  backdrop-filter: blur(10px);
+}
+.chat-bubble.me{
+  background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.07));
+  border-color: rgba(255,255,255,.20);
+}
+.chat-bubble.other{
+  background: linear-gradient(180deg, rgba(17,17,17,.25), rgba(17,17,17,.18));
+  border-color: rgba(255,255,255,.12);
+}
+.chat-time{
+  color: rgba(255,255,255,.65);
+  margin-top: .25rem;
+}
