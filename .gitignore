@@ -1,0 +1,21 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+.venv/
+
+# Local instance & databases
+instance/
+*.db
+
+# Auto-generated thumbnails
+static/thumbs/
+static/chat_thumbs/
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
