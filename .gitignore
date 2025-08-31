@@ -1,21 +1,27 @@
-# Python cache
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
 *.pyo
-*.pyd
 
-# Virtual environment
-venv/
-.venv/
-
-# Local instance & databases
+# Local data
 instance/
 *.db
+*.sqlite3
 
-# Auto-generated thumbnails
+# Images cache / thumbs
+static/uploads/
 static/thumbs/
+static/chat_uploads/
 static/chat_thumbs/
 
-# OS / editor junk
+# Env / tools
+.env
+.venv/
+venv/
+.envrc
+.idea/
+.vscode/
+
+# OS
 .DS_Store
 Thumbs.db
