@@ -841,14 +841,6 @@ def giphy_search():
     r = requests.get("https://api.giphy.com/v1/gifs/search", params=params, timeout=10)
     return jsonify(r.json()), r.status_code
 
-# === PWA: service worker at site root ===
-from flask import send_from_directory
-
-@app.route("/service-worker.js")
-def service_worker():
-    # يجب أن يكون في الجذر، لذا نرسله من مجلد static
-    return send_from_directory("static", "pwa/service-worker.js",
-                               mimetype="application/javascript")
 # ======================= Run =======================
 if __name__=="__main__":
     app.run(host="127.0.0.1", port=5000, debug=True)
