@@ -10,6 +10,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
+from flask import send_from_directory
 
 # ======================= Paths & App =======================
 BASE_DIR   = Path(__file__).parent.resolve()
@@ -840,6 +841,15 @@ def giphy_search():
     params = {"api_key": GIPHY_API_KEY, "q": q, "limit": limit, "rating": "g", "lang": "ar"}
     r = requests.get("https://api.giphy.com/v1/gifs/search", params=params, timeout=10)
     return jsonify(r.json()), r.status_code
+
+@app.route('/manifest.webmanifest')
+def manifest():
+    return send_from_directory('static/pwa', 'manifest.webmanifest', mimetype='application/manifest+json')
+
+@app.route('/service-worker.js')
+def service_worker():
+    # مهم: لازم mimetype يكون JavaScript
+    return send_from_directory('static/pwa', 'service-worker.js', mimetype='application/javascript')
 
 # ======================= Run =======================
 if __name__=="__main__":

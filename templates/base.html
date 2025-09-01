@@ -20,9 +20,8 @@
   <link href="{{ url_for('static', filename='css/landphoto.extras.css') }}?v=2" rel="stylesheet">
   <link href="{{ url_for('static', filename='css/feed.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', filename='css/comments.css') }}" rel="stylesheet">
-  <link rel="manifest" href="{{ url_for('static', filename='pwa/manifest.webmanifest') }}">
-<meta name="theme-color" content="#0a1320">
-<link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='pwa/icons/icon-192x192.png') }}">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#ffc107">
 </head>
 <body class="bg-dark-gradient text-light">
 
@@ -185,6 +184,13 @@
     }
   });
 })();
+</script>
+<script>
+  // سجّل SW بسرعة بدون انتظار window.onload
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js')
+      .catch(err => console.log('SW register failed', err));
+  }
 </script>
 </body>
 </html>

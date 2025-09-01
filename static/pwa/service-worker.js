@@ -1,40 +1,29 @@
-/* LandPhoto basic SW: cache shell + network-first for pages */
-const CACHE = 'landphoto-v1';
+// عدّل الرقم كل تحديث لإجبار تحديث الكاش
+const CACHE_VERSION = 'v3';
+const CACHE_NAME = `landphoto-${CACHE_VERSION}`;
 const ASSETS = [
   '/', 
-  '/static/pwa/manifest.webmanifest'
-  // تقدر تضيف ملفات CSS/JS الأساسية لو تحب
+  '/static/css/style.css', // عدّل حسب ملفاتك الفعلية
+  '/static/js/app.js'      // عدّل حسب ملفاتك الفعلية
 ];
 
-self.addEventListener('install', e => {
+self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open(CACHE)
-      .then(c => c.addAll(ASSETS))
-      .then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)).then(() => self.skipWaiting())
   );
 });
 
-self.addEventListener('activate', e => {
+self.addEventListener('activate', (e) => {
   e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-    ).then(() => self.clients.claim())
+    caches.keys().then(keys => Promise.all(
+      keys.filter(k => k.startsWith('landphoto-') && k !== CACHE_NAME).map(k => caches.delete(k))
+    )).then(() => self.clients.claim())
   );
 });
 
-self.addEventListener('fetch', e => {
-  const url = new URL(e.request.url);
-
-  // لا نكاشف APIs والملفات الكبيرة/الديناميكية
-  if (url.pathname.startsWith('/api/')) return;
-  if (url.pathname.startsWith('/static/chat_uploads')) return;
-
-  // صفحات: شبكة أولاً مع تخزين النتيجة
+self.addEventListener('fetch', (e) => {
+  const req = e.request;
   e.respondWith(
-    fetch(e.request).then(resp => {
-      const copy = resp.clone();
-      caches.open(CACHE).then(c => c.put(e.request, copy)).catch(()=>{});
-      return resp;
-    }).catch(() => caches.match(e.request))
+    caches.match(req).then(cached => cached || fetch(req))
   );
 });
