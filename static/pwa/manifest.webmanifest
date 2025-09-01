@@ -1,0 +1,17 @@
+{
+  "name": "LandPhoto",
+  "short_name": "LandPhoto",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0a1320",
+  "theme_color": "#0a1320",
+  "icons": [
+    {
+      "src": "/static/pwa/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
